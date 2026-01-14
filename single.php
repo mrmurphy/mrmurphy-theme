@@ -66,51 +66,37 @@ get_template_part( 'template-parts/header' );
 
     <footer class="entry-footer container">
         <?php
-        $categories_list = get_the_category_list( ', ' );
-        $tags_list = get_the_tag_list( '', ', ' );
+        $categories = get_the_category();
+        $tags = get_the_tags();
 
-        if ( $categories_list ) :
-            printf(
-                '<span class="cat-links">%s %s</span>',
-                esc_html__( 'Posted in:', 'mrmurphy' ),
-                $categories_list
-            );
+        if ( ! empty( $categories ) ) :
+            echo '<span class="cat-links">' . esc_html__( 'Posted in:', 'mrmurphy' ) . ' ';
+            foreach ( $categories as $category ) {
+                printf(
+                    '<a href="%s">%s</a>',
+                    esc_url( get_category_link( $category->term_id ) ),
+                    esc_html( $category->name )
+                );
+            }
+            echo '</span>';
         endif;
 
-        if ( $tags_list ) :
-            printf(
-                '<span class="tag-links">%s %s</span>',
-                esc_html__( 'Tagged:', 'mrmurphy' ),
-                $tags_list
-            );
+        if ( ! empty( $tags ) ) :
+            echo '<span class="tag-links">' . esc_html__( 'Tagged:', 'mrmurphy' ) . ' ';
+            foreach ( $tags as $tag ) {
+                printf(
+                    '<a href="%s">%s</a>',
+                    esc_url( get_tag_link( $tag->term_id ) ),
+                    esc_html( $tag->name )
+                );
+            }
+            echo '</span>';
         endif;
         ?>
     </footer>
 
-    <!-- Author Bio -->
-    <aside class="author-bio surface-raised-1 container" aria-label="<?php esc_attr_e( 'Author information', 'mrmurphy' ); ?>">
-        <div class="author-bio__avatar">
-            <?php echo get_avatar( get_the_author_meta( 'ID' ), 80 ); ?>
-        </div>
-        <div class="author-bio__content">
-            <h3 class="author-bio__name">
-                <?php the_author_posts_link(); ?>
-            </h3>
-            <?php if ( get_the_author_meta( 'description' ) ) : ?>
-                <p class="author-bio__description">
-                    <?php echo wp_kses_post( get_the_author_meta( 'description' ) ); ?>
-                </p>
-            <?php endif; ?>
-        </div>
-    </aside>
-
     <!-- Post Navigation -->
-    <?php
-    the_post_navigation( array(
-        'prev_text' => '<span class="nav-subtitle">' . esc_html__( 'Previous:', 'mrmurphy' ) . '</span> <span class="nav-title">%title</span>',
-        'next_text' => '<span class="nav-subtitle">' . esc_html__( 'Next:', 'mrmurphy' ) . '</span> <span class="nav-title">%title</span>',
-    ) );
-    ?>
+    <?php get_template_part( 'template-parts/post-navigation' ); ?>
 </article>
 
 <?php

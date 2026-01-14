@@ -45,30 +45,21 @@
   background-color: var(--color-bg);
 }
 
+/* Remove extra bottom padding on front page since sections handle their own spacing */
+.site-main:has(.front-page) {
+  padding-bottom: 0;
+}
+
 /* ===== SECTIONS ===== */
 .section {
-  padding-top: var(--space-6);
-  padding-bottom: var(--space-6);
+  padding-top: 48px;
+  padding-bottom: 48px;
   border-radius: 0;
 }
 
-@media (min-width: 640px) {
-  .section {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-8);
-  }
-}
-
 .section--hero {
-  padding-top: var(--space-8);
-  padding-bottom: var(--space-6);
-}
-
-@media (min-width: 640px) {
-  .section--hero {
-    padding-top: var(--space-10);
-    padding-bottom: var(--space-8);
-  }
+  padding-top: 48px;
+  padding-bottom: 48px;
 }
 
 /* Sections without surface classes use base background */
@@ -90,10 +81,22 @@
 .section__title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-semibold);
+  margin-top: 0;
   margin-bottom: var(--space-4);
   color: var(--color-fg-muted); /* Fallback, overridden by JS color cycling */
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* First header in each section should have no top margin */
+.section .container > h1:first-child,
+.section .container > h2:first-child,
+.section .container > h3:first-child,
+.section .container > h4:first-child,
+.section .container > h5:first-child,
+.section .container > h6:first-child,
+.section .container > .section__title:first-child {
+  margin-top: 0;
 }
 
 /* Headers inside inset sections should have no top margin */
@@ -240,13 +243,144 @@
   padding-top: var(--space-6);
   border-top: var(--border-subtle);
   color: var(--color-fg-muted);
+  /* Ensure container padding is not affected */
+  padding-left: 0;
+  padding-right: 0;
+  /* Don't set font-size here - let it inherit for ch unit calculations */
+}
+
+/* Apply small font-size only to children, not the footer element itself */
+.entry-footer * {
   font-size: var(--font-size-sm);
+}
+
+/* Restore container padding when entry-footer has container class */
+.entry-footer.container {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .entry-footer.container {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
 }
 
 .entry-footer .cat-links,
 .entry-footer .tag-links {
-  display: block;
-  margin-bottom: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.entry-footer .cat-links a,
+.entry-footer .tag-links a {
+  display: inline-block;
+  padding: var(--space-1) var(--space-3);
+  position: relative;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--color-fg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all var(--transition-fast);
+}
+
+.entry-footer .cat-links a:hover,
+.entry-footer .tag-links a:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Textured overlay for frosted glass effect */
+.entry-footer .cat-links a::before,
+.entry-footer .tag-links a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.05) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 3px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tinted overlay - color will be set by JavaScript */
+.entry-footer .cat-links a::after,
+.entry-footer .tag-links a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--tag-tint-color, rgba(138, 125, 181, 0.15));
+  pointer-events: none;
+  z-index: 0;
+  transition: background var(--transition-fast);
+}
+
+@media (prefers-color-scheme: dark) {
+  .entry-footer .cat-links a,
+  .entry-footer .tag-links a {
+    background: rgba(45, 42, 46, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .entry-footer .cat-links a::before,
+  .entry-footer .tag-links a::before {
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.02) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 3px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.02) 0px,
+        transparent 1px,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 3px
+      );
+  }
 }
 
 /* ===== FEATURED IMAGE ===== */
@@ -324,43 +458,102 @@
   border-top: var(--border-subtle);
 }
 
-.post-navigation .nav-links {
+.post-navigation__grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
-  justify-content: stretch;
+  gap: var(--space-6);
 }
 
 @media (min-width: 640px) {
-  .post-navigation .nav-links {
+  .post-navigation__grid {
     grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
   }
 }
 
-.post-navigation .nav-links a {
+.post-navigation__item {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  height: auto;
-  padding: var(--space-4);
-  text-align: left;
+  text-decoration: none;
+  color: var(--color-fg);
+  background-color: var(--surface-raised-1);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-raised-1);
+  padding: var(--space-6);
+  transition: all var(--transition-fast);
 }
 
-.post-navigation .nav-next a {
-  text-align: right;
-  align-items: flex-end;
+.post-navigation__item:hover {
+  box-shadow: var(--shadow-raised-2);
+  transform: translateY(-2px);
 }
 
-.post-navigation .nav-subtitle {
-  font-size: var(--font-size-xs);
-  color: var(--color-fg-muted);
+.post-navigation__item--empty {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .post-navigation__item--empty {
+    display: block;
+  }
+}
+
+.post-navigation__header {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+  color: var(--color-fg-muted); /* Fallback, overridden by JS color cycling */
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: var(--space-1);
 }
 
-.post-navigation .nav-title {
-  font-weight: var(--font-weight-medium);
+.post-navigation__content {
+  position: relative;
+}
+
+.post-navigation__thumbnail {
+  float: left;
+  width: 96px;
+  height: 96px;
+  margin-right: var(--space-4);
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-inset);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  shape-outside: margin-box;
+}
+
+.post-navigation__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.post-navigation__text {
+  overflow: hidden;
+}
+
+.post-navigation__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 0;
+  margin-bottom: var(--space-2);
   line-height: var(--line-height-tight);
+  color: var(--color-fg);
+}
+
+.post-navigation__title:hover {
+  color: var(--color-pink);
+}
+
+.post-navigation__excerpt {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: var(--line-height-normal);
 }
