@@ -58,6 +58,18 @@
   }
 
   /**
+   * Apply cycling colors to mega menu labels
+   */
+  function applyMegaMenuLabelColors() {
+    const megaMenuLabels = document.querySelectorAll('.mega-menu__label');
+
+    megaMenuLabels.forEach((label, index) => {
+      const colorIndex = index % monokaiColors.length;
+      label.style.color = monokaiColors[colorIndex];
+    });
+  }
+
+  /**
    * Apply tinted frosted glass colors to entry footer categories and tags
    */
   function applyEntryFooterColors() {
@@ -122,6 +134,7 @@
     applyCategoryColors();
     applyPostNavigationColors();
     applyEntryFooterColors();
+    applyMegaMenuLabelColors();
   }
 
   // Run on DOM ready
@@ -134,7 +147,10 @@
   // Re-run when mega menu opens (in case categories are dynamically loaded)
   document.addEventListener('click', function(e) {
     if (e.target.closest('[data-menu-toggle]')) {
-      setTimeout(applyCategoryColors, 100);
+      setTimeout(function() {
+        applyCategoryColors();
+        applyMegaMenuLabelColors();
+      }, 100);
     }
   });
 })();

@@ -97,6 +97,18 @@ function mrmurphy_comment_form_defaults( $defaults ) {
 add_filter( 'comment_form_defaults', 'mrmurphy_comment_form_defaults' );
 
 /**
+ * Set posts per page to 10
+ */
+function mrmurphy_posts_per_page( $query ) {
+    if ( ! is_admin() && $query->is_main_query() ) {
+        if ( is_home() || is_archive() || is_search() ) {
+            $query->set( 'posts_per_page', 10 );
+        }
+    }
+}
+add_action( 'pre_get_posts', 'mrmurphy_posts_per_page' );
+
+/**
  * Move cookies consent to submit button area
  */
 function mrmurphy_comment_form_submit_button( $submit_button, $args ) {

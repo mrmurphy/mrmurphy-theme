@@ -405,7 +405,6 @@
 .posts-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
 }
 
 /* ===== POST PREVIEW (App Icon Style) ===== */
@@ -418,10 +417,17 @@
   text-decoration: none;
   color: var(--color-fg);
   padding: var(--space-4);
-  margin: calc(var(--space-4) * -1);
+  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3) calc(var(--space-4) * -1);
+  background-color: var(--surface-inset);
   border-radius: var(--radius-lg);
   transition: background-color var(--transition-fast);
   container-type: inline-size;
+}
+
+@media (min-width: 640px) {
+  .post-preview {
+    margin-bottom: var(--space-6);
+  }
 }
 
 /* When no image, content takes full width */
@@ -434,7 +440,7 @@
 }
 
 .post-preview:hover {
-  background-color: var(--surface-inset);
+  background-color: var(--surface-raised-1);
 }
 
 .post-preview__image {
@@ -454,7 +460,7 @@
 }
 
 .post-preview__title {
-  font-size: clamp(1rem, 8cqi, 2.5rem);
+  font-size: clamp(0.75rem, 6cqi, 1.875rem);
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;
   margin: 0 0 var(--space-2) 0;
@@ -482,6 +488,10 @@
   text-wrap: wrap;
 }
 
+.posts-list .post-preview:last-child {
+  margin-bottom: calc(var(--space-4) * -1);
+}
+
 /* Mobile: Smaller image */
 @media (max-width: 639px) {
   .post-preview {
@@ -489,7 +499,7 @@
   }
 
   .post-preview__title {
-    font-size: clamp(0.9rem, 6cqi, 1.5rem);
+    font-size: clamp(0.7rem, 4.8cqi, 1.2rem);
   }
 }
 

@@ -70,28 +70,55 @@ $latest_posts = new WP_Query( array(
             <?php if ( $latest_posts->have_posts() ) : ?>
                 <div class="mega-menu__posts">
                     <?php while ( $latest_posts->have_posts() ) : $latest_posts->the_post(); ?>
-                        <article class="mega-menu__post">
+                        <article class="mega-menu__post post-preview">
                             <?php if ( has_post_thumbnail() ) : ?>
-                                <div class="mega-menu__post-thumbnail">
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail( 'mrmurphy-thumbnail' ); ?>
-                                    </a>
-                                </div>
+                                <a href="<?php the_permalink(); ?>" class="post-preview__image featured-image--square">
+                                    <?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
+                                </a>
                             <?php endif; ?>
-                            <div class="mega-menu__post-content">
-                                <h3 class="mega-menu__post-title">
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_title(); ?>
-                                    </a>
-                                </h3>
-                                <time class="mega-menu__post-date" datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
-                                    <?php echo esc_html( get_the_date() ); ?>
-                                </time>
+
+                            <div class="post-preview__content">
+                                <?php the_title( '<h2 class="post-preview__title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
+
+                                <div class="post-meta">
+                                    <span class="post-meta__item">
+                                        <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
+                                            <?php echo esc_html( get_the_date() ); ?>
+                                        </time>
+                                    </span>
+
+                                    <?php
+                                    $categories = get_the_category();
+                                    if ( ! empty( $categories ) ) :
+                                    ?>
+                                        <span class="post-meta__item">
+                                            <a href="<?php echo esc_url( get_category_link( $categories[0]->term_id ) ); ?>">
+                                                <?php echo esc_html( $categories[0]->name ); ?>
+                                            </a>
+                                        </span>
+                                    <?php endif; ?>
+
+                                    <span class="post-meta__item">
+                                        <?php echo esc_html( mrmurphy_reading_time() ); ?>
+                                    </span>
+                                </div>
                             </div>
+
+                            <p class="post-preview__excerpt">
+                                <?php echo wp_trim_words( get_the_excerpt(), 30, '&hellip;' ); ?>
+                            </p>
                         </article>
                     <?php endwhile; ?>
                     <?php wp_reset_postdata(); ?>
                 </div>
+
+                <?php
+                // Get blog timeline URL
+                $blog_url = get_option( 'page_for_posts' ) ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/' );
+                ?>
+                <a href="<?php echo esc_url( $blog_url ); ?>" class="mega-menu__see-more">
+                    <?php esc_html_e( 'See more', 'mrmurphy' ); ?>
+                </a>
             <?php endif; ?>
         </div>
     </div>
