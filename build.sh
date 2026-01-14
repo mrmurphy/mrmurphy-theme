@@ -6,9 +6,9 @@
 set -e
 
 THEME_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-THEME_NAME="mrmurphy-theme"
+THEME_NAME="$(basename "$THEME_DIR")"
 ZIP_NAME="${THEME_NAME}.zip"
-PARENT_DIR="$(dirname "$THEME_DIR")"
+ZIP_PATH="${THEME_DIR}/${ZIP_NAME}"
 
 echo "🎨 Building ${THEME_NAME}..."
 
@@ -38,24 +38,25 @@ else
 fi
 
 # Remove old zip if it exists
-if [ -f "${PARENT_DIR}/${ZIP_NAME}" ]; then
+if [ -f "${ZIP_PATH}" ]; then
     echo "🗑️  Removing old zip file..."
-    rm "${PARENT_DIR}/${ZIP_NAME}"
+    rm "${ZIP_PATH}"
 fi
 
 # Create zip file
 echo "📦 Creating zip file..."
-cd "$PARENT_DIR"
-zip -r "${ZIP_NAME}" "${THEME_NAME}" \
+cd "$THEME_DIR"
+zip -r "${ZIP_NAME}" . \
     -x "*.git*" \
-    -x "*/.git/*" \
+    -x ".git/*" \
     -x "*/node_modules/*" \
     -x "*.DS_Store" \
-    -x "*/.DS_Store" \
-    -x "*/.cursor/*" \
-    -x "*/.claude/*" \
+    -x ".DS_Store" \
+    -x ".cursor/*" \
+    -x ".claude/*" \
     -x "*.log" \
+    -x "${ZIP_NAME}" \
     > /dev/null
 
 echo "✅ Build complete!"
-echo "📦 Zip file created: ${PARENT_DIR}/${ZIP_NAME}"
+echo "📦 Zip file created: ${ZIP_PATH}"
