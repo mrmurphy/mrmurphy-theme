@@ -26,6 +26,11 @@ function mrmurphy_setup() {
     add_image_size( 'mrmurphy-card', 600, 400, true );
     add_image_size( 'mrmurphy-thumbnail', 150, 150, true );
 
+    // Square featured images (app icon style) - 2x sizes for retina
+    add_image_size( 'mrmurphy-square-lg', 320, 320, true );  // Displays up to 150px
+    add_image_size( 'mrmurphy-square-md', 240, 240, true );  // Displays at 120px
+    add_image_size( 'mrmurphy-square-sm', 160, 160, true );  // Displays at 80px
+
     // Register navigation menus
     register_nav_menus( array(
         'primary' => esc_html__( 'Primary Menu', 'mrmurphy' ),

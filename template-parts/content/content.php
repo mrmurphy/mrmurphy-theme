@@ -6,17 +6,14 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// Use different markup for singular vs archive/listing views
+if ( is_singular() ) :
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
     <header class="entry-header">
-        <?php
-        if ( is_singular() ) :
-            the_title( '<h1 class="entry-title">', '</h1>' );
-        else :
-            the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
-        endif;
-        ?>
+        <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 
         <div class="post-meta">
             <span class="post-meta__item">
@@ -38,14 +35,6 @@ defined( 'ABSPATH' ) || exit;
         </div>
     </header>
 
-    <?php if ( has_post_thumbnail() && ! is_singular() ) : ?>
-        <div class="entry-thumbnail">
-            <a href="<?php the_permalink(); ?>">
-                <?php the_post_thumbnail( 'mrmurphy-card' ); ?>
-            </a>
-        </div>
-    <?php endif; ?>
-
     <div class="entry-content">
         <?php
         the_content( sprintf(
@@ -61,3 +50,30 @@ defined( 'ABSPATH' ) || exit;
         ?>
     </div>
 </article>
+
+<?php else : ?>
+
+<!-- Post preview with square featured image (archive/listing view) -->
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'post-preview' ); ?>>
+    <?php if ( has_post_thumbnail() ) : ?>
+        <a href="<?php the_permalink(); ?>" class="post-preview__image featured-image--square">
+            <?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
+        </a>
+    <?php endif; ?>
+
+    <div class="post-preview__content">
+        <?php the_title( '<h2 class="post-preview__title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
+
+        <div class="post-preview__meta">
+            <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
+                <?php echo esc_html( get_the_date() ); ?>
+            </time>
+        </div>
+    </div>
+
+    <p class="post-preview__excerpt">
+        <?php echo wp_trim_words( get_the_excerpt(), 30, '&hellip;' ); ?>
+    </p>
+</article>
+
+<?php endif; ?>

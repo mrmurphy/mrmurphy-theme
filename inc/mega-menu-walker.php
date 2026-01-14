@@ -59,3 +59,47 @@ function mrmurphy_nav_menu_link_attributes( $atts, $item, $args, $depth ) {
     return $atts;
 }
 add_filter( 'nav_menu_link_attributes', 'mrmurphy_nav_menu_link_attributes', 10, 4 );
+
+/**
+ * Add category post counts to menu item titles in mega menu.
+ *
+ * @param string   $title The menu item title.
+ * @param WP_Post  $item  Menu item object.
+ * @param stdClass $args  Menu arguments.
+ * @param int      $depth Depth of menu item.
+ * @return string Modified title.
+ */
+function mrmurphy_add_category_count_to_menu_title( $title, $item, $args, $depth ) {
+    // Only apply to primary menu in mega menu context
+    if ( ! isset( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+        return $title;
+    }
+
+    // Check if this is a category link
+    $category_id = null;
+    
+    // Try to get category ID from URL
+    if ( ! empty( $item->url ) ) {
+        $category_slug = basename( untrailingslashit( $item->url ) );
+        $category = get_category_by_slug( $category_slug );
+        if ( $category ) {
+            $category_id = $category->term_id;
+        }
+    }
+    
+    // Also check if object_id is set and is a category
+    if ( ! $category_id && ! empty( $item->object_id ) && 'category' === $item->object ) {
+        $category_id = $item->object_id;
+    }
+    
+    // If we found a category, add the count
+    if ( $category_id ) {
+        $category = get_category( $category_id );
+        if ( $category && $category->count > 0 ) {
+            $title .= ' <span class="mega-menu__category-count">' . esc_html( $category->count ) . '</span>';
+        }
+    }
+    
+    return $title;
+}
+add_filter( 'nav_menu_item_title', 'mrmurphy_add_category_count_to_menu_title', 10, 4 );

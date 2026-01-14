@@ -9,8 +9,8 @@ defined( 'ABSPATH' ) || exit;
 
 // Get categories
 $categories = get_categories( array(
-    'orderby'    => 'name',
-    'order'      => 'ASC',
+    'orderby'    => 'count',
+    'order'      => 'DESC',
     'hide_empty' => true,
     'number'     => 10,
 ) );
@@ -30,7 +30,16 @@ $latest_posts = new WP_Query( array(
             <span class="mega-menu__label"><?php esc_html_e( 'Explore', 'mrmurphy' ); ?></span>
 
             <ul class="mega-menu__categories">
-                <?php if ( has_nav_menu( 'primary' ) ) : ?>
+                <?php if ( ! empty( $categories ) ) : ?>
+                    <?php foreach ( $categories as $category ) : ?>
+                        <li>
+                            <a href="<?php echo esc_url( get_category_link( $category->term_id ) ); ?>">
+                                <?php echo esc_html( $category->name ); ?>
+                                <span class="mega-menu__category-count"><?php echo esc_html( $category->count ); ?></span>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                <?php elseif ( has_nav_menu( 'primary' ) ) : ?>
                     <?php
                     wp_nav_menu( array(
                         'theme_location' => 'primary',
@@ -40,14 +49,6 @@ $latest_posts = new WP_Query( array(
                         'fallback_cb'    => false,
                     ) );
                     ?>
-                <?php elseif ( ! empty( $categories ) ) : ?>
-                    <?php foreach ( $categories as $category ) : ?>
-                        <li>
-                            <a href="<?php echo esc_url( get_category_link( $category->term_id ) ); ?>">
-                                <?php echo esc_html( $category->name ); ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
                 <?php else : ?>
                     <li>
                         <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
