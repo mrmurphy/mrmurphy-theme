@@ -109,4 +109,97 @@ function mrmurphy_comment_form_submit_button( $submit_button, $args ) {
 }
 add_filter( 'comment_form_submit_button', 'mrmurphy_comment_form_submit_button', 10, 2 );
 
+/**
+ * Custom comment callback to restructure comment HTML
+ */
+function mrmurphy_comment_callback( $comment, $args, $depth ) {
+    if ( 'div' === $args['style'] ) {
+        $tag       = 'div';
+        $add_below = 'comment';
+    } else {
+        $tag       = 'li';
+        $add_below = 'div-comment';
+    }
+
+    $commenter = wp_get_current_commenter();
+    $show_pending_links = isset( $commenter['comment_author'] ) && $commenter['comment_author'];
+    
+    if ( 'comment' === $comment->comment_type || '' === $comment->comment_type ) {
+        ?>
+        <<?php echo $tag; ?> <?php comment_class( empty( $args['has_children'] ) ? '' : 'parent' ); ?> id="comment-<?php comment_ID(); ?>">
+        <?php if ( 'div' !== $args['style'] ) : ?>
+        <div id="div-comment-<?php comment_ID(); ?>" class="comment-body">
+        <?php endif; ?>
+        
+        <div class="comment__layout">
+            <div class="comment__avatar">
+                <?php
+                if ( 0 != $args['avatar_size'] ) {
+                    echo get_avatar( $comment, $args['avatar_size'] );
+                }
+                ?>
+            </div>
+            
+            <div class="comment__header">
+                <div class="comment__author">
+                    <?php
+                    $comment_author = get_comment_author_link( $comment );
+                    if ( '0' == $comment->comment_approved && ! $show_pending_links ) {
+                        echo $comment_author;
+                    } else {
+                        printf( '<cite class="fn">%s</cite>', $comment_author );
+                    }
+                    ?>
+                </div>
+                
+                <div class="comment__meta">
+                    <a href="<?php echo esc_url( get_comment_link( $comment, $args ) ); ?>">
+                        <time datetime="<?php comment_time( 'c' ); ?>">
+                            <?php
+                            printf(
+                                /* translators: 1: Comment date, 2: Comment time */
+                                esc_html__( '%1$s at %2$s', 'mrmurphy' ),
+                                get_comment_date( '', $comment ),
+                                get_comment_time()
+                            );
+                            ?>
+                        </time>
+                    </a>
+                    <?php edit_comment_link( esc_html__( '(Edit)', 'mrmurphy' ), '<span class="edit-link">', '</span>' ); ?>
+                </div>
+            </div>
+            
+            <?php if ( '0' == $comment->comment_approved ) : ?>
+            <em class="comment-awaiting-moderation"><?php esc_html_e( 'Your comment is awaiting moderation.', 'mrmurphy' ); ?></em>
+            <?php endif; ?>
+            
+            <div class="comment__content">
+                <?php comment_text(); ?>
+            </div>
+            
+            <div class="comment__footer">
+                <?php
+                comment_reply_link(
+                    array_merge(
+                        $args,
+                        array(
+                            'add_below' => $add_below,
+                            'depth'     => $depth,
+                            'max_depth' => $args['max_depth'],
+                            'before'    => '<div class="reply">',
+                            'after'     => '</div>',
+                        )
+                    )
+                );
+                ?>
+            </div>
+        </div>
+        
+        <?php if ( 'div' !== $args['style'] ) : ?>
+        </div>
+        <?php endif; ?>
+        <?php
+    }
+}
+
 
