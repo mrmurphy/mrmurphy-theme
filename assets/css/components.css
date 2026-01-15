@@ -705,6 +705,355 @@
   color: var(--color-fg-muted);
 }
 
+/* ===== CONTACT FORM ===== */
+.contact-form-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.contact-form-wrapper form,
+.contact-form-wrapper .wpcf7-form,
+.contact-form-wrapper .gform_wrapper form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Create a flex row container for submit button and Akismet */
+.contact-form-wrapper form > p:has(input[type="submit"]) + p:has(.akismet-prompt),
+.contact-form-wrapper .wpcf7-form > p:has(input[type="submit"]) + p:has(.akismet-prompt) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: calc(var(--space-4) * -1);
+}
+
+/* Move submit button into the Akismet paragraph's flex container */
+.contact-form-wrapper form > p:has(input[type="submit"]) + p:has(.akismet-prompt)::before,
+.contact-form-wrapper .wpcf7-form > p:has(input[type="submit"]) + p:has(.akismet-prompt)::before {
+  content: '';
+  order: -1;
+}
+
+/* Actually, let's use a simpler approach - make submit button p display contents */
+.contact-form-wrapper p:has(input[type="submit"]) + p:has(.akismet-prompt) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: calc(var(--space-4) * -1);
+}
+
+/* Pull submit button into Akismet container visually */
+.contact-form-wrapper p:has(input[type="submit"]) {
+  margin-bottom: 0;
+}
+
+/* Form field groups */
+.contact-form-wrapper p,
+.contact-form-wrapper .gfield {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+/* Labels */
+.contact-form-wrapper label,
+.contact-form-wrapper .gfield_label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+  font-family: var(--font-primary);
+}
+
+.contact-form-wrapper label .required,
+.contact-form-wrapper .gfield_required {
+  color: var(--color-pink);
+}
+
+/* Inputs and textareas */
+.contact-form-wrapper input[type="text"],
+.contact-form-wrapper input[type="email"],
+.contact-form-wrapper input[type="tel"],
+.contact-form-wrapper input[type="url"],
+.contact-form-wrapper input[type="number"],
+.contact-form-wrapper textarea,
+.contact-form-wrapper select,
+.contact-form-wrapper .ginput_container input,
+.contact-form-wrapper .ginput_container textarea,
+.contact-form-wrapper .ginput_container select {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-inset);
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--color-fg);
+  transition: all var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contact-form-wrapper input[type="text"]:focus,
+.contact-form-wrapper input[type="email"]:focus,
+.contact-form-wrapper input[type="tel"]:focus,
+.contact-form-wrapper input[type="url"]:focus,
+.contact-form-wrapper input[type="number"]:focus,
+.contact-form-wrapper textarea:focus,
+.contact-form-wrapper select:focus,
+.contact-form-wrapper .ginput_container input:focus,
+.contact-form-wrapper .ginput_container textarea:focus,
+.contact-form-wrapper .ginput_container select:focus {
+  outline: none;
+  border-color: var(--color-cyan);
+  box-shadow: var(--shadow-glow);
+}
+
+.contact-form-wrapper input[type="text"]::placeholder,
+.contact-form-wrapper input[type="email"]::placeholder,
+.contact-form-wrapper textarea::placeholder,
+.contact-form-wrapper .ginput_container input::placeholder,
+.contact-form-wrapper .ginput_container textarea::placeholder {
+  color: var(--color-fg-muted);
+}
+
+.contact-form-wrapper textarea,
+.contact-form-wrapper .ginput_container textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+/* Form submit row container */
+.contact-form-wrapper .form-submit-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-top: 0;
+  text-align: right;
+  vertical-align: top;
+}
+
+/* Privacy info container - comes first */
+.contact-form-wrapper .form-submit-row .form-privacy-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  line-height: 1.4;
+  text-align: right;
+  order: 1;
+}
+
+/* Akismet notice - one line with link */
+.contact-form-wrapper .form-submit-row .akismet-prompt,
+.contact-form-wrapper .form-submit-row .form-privacy-info p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  line-height: 1.4;
+  margin: 0;
+  text-align: right;
+}
+
+.contact-form-wrapper .form-submit-row .akismet-prompt a,
+.contact-form-wrapper .form-submit-row .form-privacy-info a {
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.contact-form-wrapper .form-submit-row .akismet-prompt a:hover,
+.contact-form-wrapper .form-submit-row .form-privacy-info a:hover {
+  color: var(--color-pink);
+}
+
+/* Submit button container - comes after privacy info */
+.contact-form-wrapper .form-submit-row > p:has(input[type="submit"]),
+.contact-form-wrapper .form-submit-row > span:has(input[type="submit"]),
+.contact-form-wrapper .form-submit-row > div:has(input[type="submit"]) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  position: relative;
+  order: 2;
+}
+
+/* Spinner - float over button, positioned absolutely */
+.contact-form-wrapper .form-submit-row .wpcf7-spinner,
+.contact-form-wrapper .form-submit-row .ajax-loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+
+/* Submit button row - contains button and Akismet notice (fallback for old structure) */
+.contact-form-wrapper p:has(input[type="submit"]),
+.contact-form-wrapper p:has(button[type="submit"]),
+.contact-form-wrapper p:has(.gform_button),
+.contact-form-wrapper .gfield:has(.gform_button) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+
+/* Submit button */
+.contact-form-wrapper input[type="submit"],
+.contact-form-wrapper button[type="submit"],
+.contact-form-wrapper .gform_button,
+.contact-form-wrapper .form-submit-row input[type="submit"],
+.contact-form-wrapper .form-submit-row button[type="submit"] {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--color-pink);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.contact-form-wrapper input[type="submit"]:hover,
+.contact-form-wrapper button[type="submit"]:hover,
+.contact-form-wrapper .gform_button:hover {
+  background-color: var(--color-purple);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-raised-1);
+}
+
+.contact-form-wrapper input[type="submit"]:active,
+.contact-form-wrapper button[type="submit"]:active,
+.contact-form-wrapper .gform_button:active {
+  transform: translateY(0);
+}
+
+/* Name and Email fields side by side (above mobile) */
+@media (min-width: 640px) {
+  /* Contact Form 7: Use CSS Grid to place name and email side by side */
+  .contact-form-wrapper form,
+  .contact-form-wrapper .wpcf7-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  
+  /* Name field in first column */
+  .contact-form-wrapper p:has(input[name*="name" i]:not([type="hidden"])),
+  .contact-form-wrapper p:has(input[name*="your-name" i]:not([type="hidden"])) {
+    grid-column: 1;
+  }
+  
+  /* Email field in second column */
+  .contact-form-wrapper p:has(input[type="email"]:not([type="hidden"])) {
+    grid-column: 2;
+  }
+  
+  /* Other fields (subject, message) span full width */
+  .contact-form-wrapper p:has(input[name*="subject" i]:not([type="hidden"])),
+  .contact-form-wrapper p:has(textarea),
+  .contact-form-wrapper p:has(.wpcf7-response-output) {
+    grid-column: 1 / -1;
+  }
+  
+  /* Form submit row spans full width */
+  .contact-form-wrapper .form-submit-row {
+    grid-column: 1 / -1;
+  }
+  
+  /* Submit button row - spans full width (fallback) */
+  .contact-form-wrapper p:has(input[type="submit"]),
+  .contact-form-wrapper p:has(button[type="submit"]) {
+    grid-column: 1 / -1;
+  }
+  
+  /* Gravity Forms: Name and email side by side */
+  .contact-form-wrapper .gform_wrapper form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+  
+  .contact-form-wrapper .gfield:has(.ginput_container input[name*="name" i]) {
+    grid-column: 1;
+  }
+  
+  .contact-form-wrapper .gfield:has(.ginput_container input[type="email"]) {
+    grid-column: 2;
+  }
+  
+  /* Other Gravity Forms fields span full width */
+  .contact-form-wrapper .gfield:has(.ginput_container textarea),
+  .contact-form-wrapper .gfield:has(.ginput_container select),
+  .contact-form-wrapper .gfield:has(.gform_button),
+  .contact-form-wrapper .gfield:not(:has(.ginput_container input[name*="name" i])):not(:has(.ginput_container input[type="email"])) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Form notes and messages */
+.contact-form-wrapper .wpcf7-response-output,
+.contact-form-wrapper .gform_confirmation_message,
+.contact-form-wrapper .validation_error {
+  font-size: var(--font-size-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-4);
+}
+
+.contact-form-wrapper .wpcf7-mail-sent-ok,
+.contact-form-wrapper .gform_confirmation_message {
+  background-color: rgba(90, 154, 85, 0.1);
+  border: 1px solid var(--color-green);
+  color: var(--color-fg);
+}
+
+.contact-form-wrapper .wpcf7-validation-errors,
+.contact-form-wrapper .validation_error {
+  background-color: rgba(213, 98, 119, 0.1);
+  border: 1px solid var(--color-pink);
+  color: var(--color-fg);
+}
+
+.contact-form-wrapper .wpcf7-not-valid-tip,
+.contact-form-wrapper .gfield_description.validation_message {
+  font-size: var(--font-size-xs);
+  color: var(--color-pink);
+  margin-top: var(--space-1);
+}
+
+/* Akismet and other notices (when not in form-submit-row) */
+.contact-form-wrapper p:not(.form-submit-row) .akismet-prompt,
+.contact-form-wrapper .gform_description {
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+  margin-top: var(--space-2);
+}
+
+.contact-form-wrapper p:not(.form-submit-row) .akismet-prompt a {
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+}
+
+.contact-form-wrapper p:not(.form-submit-row) .akismet-prompt a:hover {
+  color: var(--color-pink);
+}
+
 /* ===== AUTHOR BIO ===== */
 .author-bio {
   display: flex;

@@ -338,23 +338,19 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
     </section>
 
     <!-- Newsletter Section -->
+    <?php if ( $newsletter_shortcode ) : ?>
     <section class="section section--newsletter" aria-labelledby="newsletter-heading">
         <div class="container">
             <h2 id="newsletter-heading" class="section__title">
                 <?php esc_html_e( 'Stay Updated', 'mrmurphy' ); ?>
             </h2>
 
-            <?php if ( $newsletter_shortcode ) : ?>
-                <div class="newsletter-form-wrapper">
-                    <?php echo do_shortcode( $newsletter_shortcode ); ?>
-                </div>
-            <?php else : ?>
-                <div class="newsletter-form-placeholder card">
-                    <p><?php esc_html_e( 'Newsletter signup form will appear here. Add a shortcode from your email marketing plugin (Mailchimp, ConvertKit, etc.) in the Customizer under "MrMurphy Theme > Newsletter Form".', 'mrmurphy' ); ?></p>
-                </div>
-            <?php endif; ?>
+            <div class="newsletter-form-wrapper">
+                <?php echo do_shortcode( $newsletter_shortcode ); ?>
+            </div>
         </div>
     </section>
+    <?php endif; ?>
 </div>
 
 <?php get_template_part( 'template-parts/footer' ); ?>
