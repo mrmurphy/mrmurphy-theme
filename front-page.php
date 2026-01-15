@@ -129,7 +129,7 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                             </div>
                         <?php elseif ( has_post_thumbnail() ) : ?>
                             <div class="project-card__icon">
-                                <?php the_post_thumbnail( 'mrmurphy-thumbnail' ); ?>
+                                <?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
                             </div>
                         <?php endif; ?>
 
@@ -144,18 +144,18 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                                 <?php endif; ?>
                             </h3>
 
-                            <?php if ( has_excerpt() ) : ?>
-                                <p class="project-card__description">
-                                    <?php echo esc_html( get_the_excerpt() ); ?>
-                                </p>
-                            <?php endif; ?>
-
                             <?php if ( $project_status ) : ?>
                                 <span class="project-card__status">
                                     <?php echo esc_html( $project_status ); ?>
                                 </span>
                             <?php endif; ?>
                         </div>
+
+                        <?php if ( has_excerpt() ) : ?>
+                            <p class="project-card__description">
+                                <?php echo esc_html( get_the_excerpt() ); ?>
+                            </p>
+                        <?php endif; ?>
                     </article>
                 <?php endwhile; ?>
                 <?php wp_reset_postdata(); ?>

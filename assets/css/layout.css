@@ -88,6 +88,15 @@
   letter-spacing: 0.05em;
 }
 
+.section--projects .section__title,
+.section--posts .section__title,
+.section--tools .section__title,
+.section--work-experience .section__title,
+.section--contact .section__title,
+.section--newsletter .section__title {
+  margin-bottom: var(--space-8);
+}
+
 /* First header in each section should have no top margin */
 .section .container > h1:first-child,
 .section .container > h2:first-child,
