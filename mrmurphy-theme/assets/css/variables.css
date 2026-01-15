@@ -1,0 +1,192 @@
+/**
+ * CSS Custom Properties
+ * Monokai Pro color palette with light/dark mode support
+ */
+
+:root {
+  /* ===== TYPOGRAPHY ===== */
+  --font-primary: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+
+  --line-height-tight: 1.3;
+  --line-height-normal: 1.7;
+  --line-height-relaxed: 1.8;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ===== SPACING ===== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ===== LAYOUT ===== */
+  --content-width: 85ch;
+  --wide-width: 110ch;
+  --max-width: 1200px;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* ===== LIGHT MODE COLORS (Default) ===== */
+
+  /* Background & Foreground */
+  --color-bg: #faf8f5;
+  --color-fg: #2d2a2e;
+  --color-fg-muted: #727072;
+
+  /* Accent Colors (muted for light mode) */
+  --color-pink: #d56277;
+  --color-orange: #c97d54;
+  --color-yellow: #b89a47;
+  --color-green: #5a9a55;
+  --color-cyan: #4a9aa5;
+  --color-purple: #8a7db5;
+
+  /* Surfaces */
+  --surface-base: #faf8f5;
+  --surface-inset: #f0ede8;
+  --surface-raised-1: #ffffff;
+  --surface-raised-2: #ffffff;
+
+  /* Shadows */
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-raised-2: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 0 3px rgba(138, 125, 181, 0.2);
+
+  /* Borders */
+  --border-subtle: 1px solid rgba(0, 0, 0, 0.08);
+  --border-muted: 1px solid rgba(0, 0, 0, 0.12);
+  --border-focus: 2px solid var(--color-cyan);
+}
+
+/* ===== DARK MODE ===== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Background & Foreground */
+    --color-bg: #2d2a2e;
+    --color-fg: #fcfcfa;
+    --color-fg-muted: #939293;
+
+    /* Accent Colors (vibrant for dark mode) */
+    --color-pink: #ff6188;
+    --color-orange: #fc9867;
+    --color-yellow: #ffd866;
+    --color-green: #a9dc76;
+    --color-cyan: #78dce8;
+    --color-purple: #ab9df2;
+
+    /* Surfaces */
+    --surface-base: #2d2a2e;
+    --surface-inset: #221f22;
+    --surface-raised-1: #403e41;
+    --surface-raised-2: #5b595c;
+
+    /* Shadows (stronger for dark mode) */
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --shadow-raised-2: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --shadow-glow: 0 0 0 3px rgba(171, 157, 242, 0.3);
+
+    /* Borders */
+    --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+    --border-muted: 1px solid rgba(255, 255, 255, 0.1);
+    --border-focus: 2px solid var(--color-cyan);
+  }
+}
+
+/* Manual dark mode via data-theme attribute */
+:root[data-theme="dark"] {
+  /* Background & Foreground */
+  --color-bg: #2d2a2e;
+  --color-fg: #fcfcfa;
+  --color-fg-muted: #939293;
+
+  /* Accent Colors (vibrant for dark mode) */
+  --color-pink: #ff6188;
+  --color-orange: #fc9867;
+  --color-yellow: #ffd866;
+  --color-green: #a9dc76;
+  --color-cyan: #78dce8;
+  --color-purple: #ab9df2;
+
+  /* Surfaces */
+  --surface-base: #2d2a2e;
+  --surface-inset: #221f22;
+  --surface-raised-1: #403e41;
+  --surface-raised-2: #5b595c;
+
+  /* Shadows (stronger for dark mode) */
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-raised-2: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-glow: 0 0 0 3px rgba(171, 157, 242, 0.3);
+
+  /* Borders */
+  --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+  --border-muted: 1px solid rgba(255, 255, 255, 0.1);
+  --border-focus: 2px solid var(--color-cyan);
+}
+
+/* Force light mode */
+:root[data-theme="light"] {
+  /* Background & Foreground */
+  --color-bg: #faf8f5;
+  --color-fg: #2d2a2e;
+  --color-fg-muted: #727072;
+
+  /* Accent Colors (muted for light mode) */
+  --color-pink: #d56277;
+  --color-orange: #c97d54;
+  --color-yellow: #b89a47;
+  --color-green: #5a9a55;
+  --color-cyan: #4a9aa5;
+  --color-purple: #8a7db5;
+
+  /* Surfaces */
+  --surface-base: #faf8f5;
+  --surface-inset: #f0ede8;
+  --surface-raised-1: #ffffff;
+  --surface-raised-2: #ffffff;
+
+  /* Shadows */
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-raised-2: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 0 3px rgba(138, 125, 181, 0.2);
+
+  /* Borders */
+  --border-subtle: 1px solid rgba(0, 0, 0, 0.08);
+  --border-muted: 1px solid rgba(0, 0, 0, 0.12);
+  --border-focus: 2px solid var(--color-cyan);
+}

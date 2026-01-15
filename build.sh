@@ -15,17 +15,32 @@ echo "🎨 Building ${THEME_NAME}..."
 # Function to bump version (patch version)
 bump_version() {
     local file=$1
-    local current_version=$(grep -oP 'Version:\s*\K[0-9]+\.[0-9]+\.[0-9]+' "$file" 2>/dev/null || grep -oP "MRMURPHY_VERSION',\s*'\K[0-9]+\.[0-9]+\.[0-9]+" "$file" 2>/dev/null || echo "1.0.0")
+    local current_version=""
+    
+    # Extract version from style.css
+    if [[ "$file" == *"style.css" ]]; then
+        current_version=$(grep -E "^Version:" "$file" | sed -E 's/Version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)/\1/' | head -1)
+    # Extract version from functions.php
+    elif [[ "$file" == *"functions.php" ]]; then
+        current_version=$(grep -E "MRMURPHY_VERSION" "$file" | sed -E "s/.*MRMURPHY_VERSION',[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/" | head -1)
+    fi
+    
+    # Fallback to 1.0.0 if version not found
+    if [ -z "$current_version" ]; then
+        current_version="1.0.0"
+    fi
+    
     local major=$(echo $current_version | cut -d. -f1)
     local minor=$(echo $current_version | cut -d. -f2)
     local patch=$(echo $current_version | cut -d. -f3)
     patch=$((patch + 1))
     local new_version="${major}.${minor}.${patch}"
     
+    # Update version in file (using -E for extended regex on macOS)
     if [[ "$file" == *"style.css" ]]; then
-        sed -i '' "s/Version: [0-9]\+\.[0-9]\+\.[0-9]\+/Version: ${new_version}/" "$file"
+        sed -i '' -E "s/^Version: [0-9]+\.[0-9]+\.[0-9]+/Version: ${new_version}/" "$file"
     elif [[ "$file" == *"functions.php" ]]; then
-        sed -i '' "s/MRMURPHY_VERSION', '[0-9]\+\.[0-9]\+\.[0-9]\+'/MRMURPHY_VERSION', '${new_version}'/" "$file"
+        sed -i '' -E "s/MRMURPHY_VERSION', '[0-9]+\.[0-9]+\.[0-9]+'/MRMURPHY_VERSION', '${new_version}'/" "$file"
     fi
     
     echo "$new_version"
