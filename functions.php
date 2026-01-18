@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MRMURPHY_VERSION', '1.0.3' );
+define( 'MRMURPHY_VERSION', '1.0.4' );
 define( 'MRMURPHY_DIR', get_template_directory() );
 define( 'MRMURPHY_URI', get_template_directory_uri() );
 
