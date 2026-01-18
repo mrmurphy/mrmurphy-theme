@@ -207,7 +207,7 @@
   aspect-ratio: 1;
   grid-row: 1;
   grid-column: 1;
-  border-radius: var(--radius-lg);
+  border-radius: 28px;
   overflow: hidden;
   background-color: var(--surface-inset);
   align-self: start;
@@ -218,6 +218,10 @@
   height: 100%;
   object-fit: cover;
   border-radius: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, 1);
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
 }
 
 .project-card__content {
@@ -1249,7 +1253,7 @@
   flex-shrink: 0;
   width: 120px;
   height: 120px;
-  border-radius: var(--radius-full);
+  border-radius: 28px;
   overflow: hidden;
   box-shadow: var(--shadow-raised-2);
 }
