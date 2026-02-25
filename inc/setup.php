@@ -132,3 +132,36 @@ function mrmurphy_body_classes( $classes ) {
     return $classes;
 }
 add_filter( 'body_class', 'mrmurphy_body_classes' );
+
+/**
+ * On theme activation, ensure a Blog page exists and is set as the Posts page
+ * when using a static front page, so /blog/ shows all posts in chronological order.
+ */
+function mrmurphy_ensure_blog_page() {
+    // Only run when a static front page is used and no Posts page is set.
+    if ( 'page' !== get_option( 'show_on_front' ) || get_option( 'page_for_posts' ) ) {
+        return;
+    }
+
+    $slug = 'blog';
+    $existing = get_page_by_path( $slug, OBJECT, 'page' );
+
+    if ( $existing ) {
+        update_option( 'page_for_posts', $existing->ID );
+        return;
+    }
+
+    $page_id = wp_insert_post( array(
+        'post_title'   => _x( 'Blog', 'Posts page title', 'mrmurphy' ),
+        'post_name'    => $slug,
+        'post_status'  => 'publish',
+        'post_type'    => 'page',
+        'post_content' => '',
+        'post_author'  => get_current_user_id() ? get_current_user_id() : 1,
+    ) );
+
+    if ( ! is_wp_error( $page_id ) ) {
+        update_option( 'page_for_posts', $page_id );
+    }
+}
+add_action( 'after_switch_theme', 'mrmurphy_ensure_blog_page' );

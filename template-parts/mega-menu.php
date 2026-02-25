@@ -56,7 +56,7 @@ $latest_posts = new WP_Query( array(
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>">
+                        <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>">
                             <?php esc_html_e( 'Blog', 'mrmurphy' ); ?>
                         </a>
                     </li>
@@ -112,11 +112,7 @@ $latest_posts = new WP_Query( array(
                     <?php wp_reset_postdata(); ?>
                 </div>
 
-                <?php
-                // Get blog timeline URL
-                $blog_url = get_option( 'page_for_posts' ) ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/' );
-                ?>
-                <a href="<?php echo esc_url( $blog_url ); ?>" class="mega-menu__see-more">
+                <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="mega-menu__see-more">
                     <?php esc_html_e( 'See more', 'mrmurphy' ); ?>
                 </a>
             <?php endif; ?>

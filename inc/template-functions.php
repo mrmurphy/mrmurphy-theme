@@ -8,6 +8,18 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Get the URL of the full blog page (all posts in chronological order).
+ *
+ * Uses the Posts page when set in Settings > Reading, otherwise the site homepage.
+ *
+ * @return string Blog URL.
+ */
+function mrmurphy_get_blog_url() {
+    $posts_page_id = get_option( 'page_for_posts' );
+    return $posts_page_id ? get_permalink( $posts_page_id ) : home_url( '/' );
+}
+
+/**
  * Calculate reading time for a post.
  *
  * @param int $post_id Post ID. Defaults to current post.

@@ -87,11 +87,9 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                         <a href="#contact" class="btn btn--primary">
                             <?php esc_html_e( 'Get in Touch', 'mrmurphy' ); ?>
                         </a>
-                        <?php if ( get_option( 'page_for_posts' ) ) : ?>
-                            <a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>" class="btn btn--secondary">
-                                <?php esc_html_e( 'Read Blog', 'mrmurphy' ); ?>
-                            </a>
-                        <?php endif; ?>
+                        <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
+                            <?php esc_html_e( 'Read Blog', 'mrmurphy' ); ?>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -255,13 +253,11 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                 <?php wp_reset_postdata(); ?>
             </div>
 
-            <?php if ( get_option( 'page_for_posts' ) ) : ?>
-                <div style="text-align: center; margin-top: var(--space-8);">
-                    <a href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>" class="btn btn--secondary">
-                        <?php esc_html_e( 'View All Posts', 'mrmurphy' ); ?>
-                    </a>
-                </div>
-            <?php endif; ?>
+            <div class="section__footer" style="text-align: center; margin-top: var(--space-8);">
+                <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
+                    <?php esc_html_e( 'View All Posts', 'mrmurphy' ); ?>
+                </a>
+            </div>
         </div>
     </section>
     <?php endif; ?>
