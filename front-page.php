@@ -127,6 +127,57 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
     </section>
     <?php endif; ?>
 
+    <!-- Tools & Stack Section -->
+    <?php $tools = mrmurphy_get_tools_list(); ?>
+    <section class="section section--tools surface-inset" aria-labelledby="tools-heading">
+        <div class="container">
+            <h2 id="tools-heading" class="section__title">
+                <?php esc_html_e( 'Tools & Stack', 'mrmurphy' ); ?>
+            </h2>
+            <?php if ( ! empty( $tools ) ) : ?>
+            <div class="grid grid--4">
+                <?php foreach ( $tools as $tool ) : ?>
+                    <?php if ( ! empty( $tool['url'] ) ) : ?>
+                        <a href="<?php echo esc_url( $tool['url'] ); ?>" class="tool-badge" target="_blank" rel="noopener noreferrer">
+                    <?php else : ?>
+                        <div class="tool-badge">
+                    <?php endif; ?>
+
+                        <?php if ( ! empty( $tool['icon'] ) ) : ?>
+                            <div class="tool-badge__icon">
+                                <img src="<?php echo esc_url( $tool['icon'] ); ?>" alt="">
+                            </div>
+                        <?php endif; ?>
+
+                        <span class="tool-badge__name">
+                            <?php echo esc_html( $tool['name'] ); ?>
+                        </span>
+
+                    <?php if ( ! empty( $tool['url'] ) ) : ?>
+                        </a>
+                    <?php else : ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+            <?php else : ?>
+            <!-- Skeleton placeholder for empty tools -->
+            <div class="grid grid--4">
+                <?php for ( $i = 0; $i < 8; $i++ ) : ?>
+                <div class="skeleton-badge">
+                    <div class="skeleton-badge__icon skeleton"></div>
+                    <div class="skeleton-badge__name skeleton"></div>
+                </div>
+                <?php endfor; ?>
+            </div>
+            <div class="skeleton-empty-state">
+                <p><?php esc_html_e( 'No tools added yet', 'mrmurphy' ); ?></p>
+                <p class="skeleton-empty-state__hint"><?php esc_html_e( 'Add tools in Appearance > Customize > MrMurphy Theme', 'mrmurphy' ); ?></p>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
+
     <!-- Featured Projects Section -->
     <?php
     $projects = new WP_Query( array(
@@ -206,57 +257,6 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
             <div class="skeleton-empty-state">
                 <p><?php esc_html_e( 'No projects yet', 'mrmurphy' ); ?></p>
                 <p class="skeleton-empty-state__hint"><?php esc_html_e( 'Add projects via Projects in the WordPress admin', 'mrmurphy' ); ?></p>
-            </div>
-            <?php endif; ?>
-        </div>
-    </section>
-
-    <!-- Tools & Stack Section -->
-    <?php $tools = mrmurphy_get_tools_list(); ?>
-    <section class="section section--tools surface-inset" aria-labelledby="tools-heading">
-        <div class="container">
-            <h2 id="tools-heading" class="section__title">
-                <?php esc_html_e( 'Tools & Stack', 'mrmurphy' ); ?>
-            </h2>
-            <?php if ( ! empty( $tools ) ) : ?>
-            <div class="grid grid--4">
-                <?php foreach ( $tools as $tool ) : ?>
-                    <?php if ( ! empty( $tool['url'] ) ) : ?>
-                        <a href="<?php echo esc_url( $tool['url'] ); ?>" class="tool-badge" target="_blank" rel="noopener noreferrer">
-                    <?php else : ?>
-                        <div class="tool-badge">
-                    <?php endif; ?>
-
-                        <?php if ( ! empty( $tool['icon'] ) ) : ?>
-                            <div class="tool-badge__icon">
-                                <img src="<?php echo esc_url( $tool['icon'] ); ?>" alt="">
-                            </div>
-                        <?php endif; ?>
-
-                        <span class="tool-badge__name">
-                            <?php echo esc_html( $tool['name'] ); ?>
-                        </span>
-
-                    <?php if ( ! empty( $tool['url'] ) ) : ?>
-                        </a>
-                    <?php else : ?>
-                        </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </div>
-            <?php else : ?>
-            <!-- Skeleton placeholder for empty tools -->
-            <div class="grid grid--4">
-                <?php for ( $i = 0; $i < 8; $i++ ) : ?>
-                <div class="skeleton-badge">
-                    <div class="skeleton-badge__icon skeleton"></div>
-                    <div class="skeleton-badge__name skeleton"></div>
-                </div>
-                <?php endfor; ?>
-            </div>
-            <div class="skeleton-empty-state">
-                <p><?php esc_html_e( 'No tools added yet', 'mrmurphy' ); ?></p>
-                <p class="skeleton-empty-state__hint"><?php esc_html_e( 'Add tools in Appearance > Customize > MrMurphy Theme', 'mrmurphy' ); ?></p>
             </div>
             <?php endif; ?>
         </div>
