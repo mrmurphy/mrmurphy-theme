@@ -96,6 +96,37 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
         </div>
     </section>
 
+    <!-- Latest Posts Section -->
+    <?php
+    $latest_posts = new WP_Query( array(
+        'posts_per_page'      => 3,
+        'post_status'         => 'publish',
+        'ignore_sticky_posts' => true,
+    ) );
+
+    if ( $latest_posts->have_posts() ) :
+    ?>
+    <section class="section section--posts" aria-labelledby="posts-heading">
+        <div class="container">
+            <h2 id="posts-heading" class="section__title">
+                <?php esc_html_e( 'Latest Posts', 'mrmurphy' ); ?>
+            </h2>
+            <div class="posts-list">
+                <?php while ( $latest_posts->have_posts() ) : $latest_posts->the_post(); ?>
+                    <?php get_template_part( 'template-parts/content/content', 'excerpt' ); ?>
+                <?php endwhile; ?>
+                <?php wp_reset_postdata(); ?>
+            </div>
+
+            <div class="section__footer" style="text-align: center; margin-top: var(--space-8);">
+                <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
+                    <?php esc_html_e( 'View All Posts', 'mrmurphy' ); ?>
+                </a>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <!-- Featured Projects Section -->
     <?php
     $projects = new WP_Query( array(
@@ -230,37 +261,6 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
             <?php endif; ?>
         </div>
     </section>
-
-    <!-- Latest Posts Section -->
-    <?php
-    $latest_posts = new WP_Query( array(
-        'posts_per_page'      => 3,
-        'post_status'         => 'publish',
-        'ignore_sticky_posts' => true,
-    ) );
-
-    if ( $latest_posts->have_posts() ) :
-    ?>
-    <section class="section section--posts" aria-labelledby="posts-heading">
-        <div class="container">
-            <h2 id="posts-heading" class="section__title">
-                <?php esc_html_e( 'Latest Posts', 'mrmurphy' ); ?>
-            </h2>
-            <div class="posts-list">
-                <?php while ( $latest_posts->have_posts() ) : $latest_posts->the_post(); ?>
-                    <?php get_template_part( 'template-parts/content/content', 'excerpt' ); ?>
-                <?php endwhile; ?>
-                <?php wp_reset_postdata(); ?>
-            </div>
-
-            <div class="section__footer" style="text-align: center; margin-top: var(--space-8);">
-                <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
-                    <?php esc_html_e( 'View All Posts', 'mrmurphy' ); ?>
-                </a>
-            </div>
-        </div>
-    </section>
-    <?php endif; ?>
 
     <!-- Work Experience Section -->
     <?php $work_experience = mrmurphy_get_work_experience_list(); ?>
