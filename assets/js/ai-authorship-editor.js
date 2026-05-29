@@ -178,7 +178,11 @@
 
 			// Update the block editor's post meta via the editor store.
 			editPost( {
-				meta: {}
+				meta: (function() {
+					var m = {};
+					m[ metaKey ] = json;
+					return m;
+				})()
 			} );
 
 			// Save the post (which includes meta) via the editor store.
@@ -204,7 +208,11 @@
 						method: 'POST',
 						data: {
 							id: postId,
-							meta: {}
+							meta: (function() {
+								var m = {};
+								m[ metaKey ] = json;
+								return m;
+							})()
 						}
 					} ).then( function () {
 						setIsSaving( false );
