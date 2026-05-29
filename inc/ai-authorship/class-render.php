@@ -64,10 +64,14 @@ class MRMurphy_Authorship_Render {
 		$categories = $this->categories->get_all();
 
 		$labels = array();
+		$first_color = 'var(--color-green, #16a34a)';
 		foreach ( $counts as $cat => $count ) {
 			if ( isset( $categories[ $cat ] ) ) {
 				$label = $categories[ $cat ]['label'];
 				$labels[] = sprintf( '%d %s', $count, $label );
+				if ( 'var(--color-green, #16a34a)' === $first_color ) {
+					$first_color = $categories[ $cat ]['color'];
+				}
 			}
 		}
 
@@ -75,12 +79,13 @@ class MRMurphy_Authorship_Render {
 
 		return sprintf(
 			'<button class="authorship-pill" aria-expanded="false" aria-controls="%s" id="%s-toggle">' .
-				'<span class="authorship-pill__icon" aria-hidden="true"></span>' .
+				'<span class="authorship-pill__icon" aria-hidden="true" style="color:%s;"></span>' .
 				'<span class="authorship-pill__label">%s</span>' .
 				'<span class="authorship-pill__chevron" aria-hidden="true"></span>' .
 			'</button>',
 			esc_attr( $unique_id ),
 			esc_attr( $unique_id ),
+			esc_attr( $first_color ),
 			esc_html( $label_text )
 		);
 	}
