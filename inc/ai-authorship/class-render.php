@@ -27,7 +27,7 @@ class MRMurphy_Authorship_Render {
 	 *
 	 * @param int $post_id Post ID.
 	 */
-	public static function render( $post_id ) {
+	public static function render_post( $post_id ) {
 		$categories = new MRMurphy_Authorship_Categories();
 		$meta       = new MRMurphy_Authorship_Meta();
 		$render     = new self( $categories, $meta );

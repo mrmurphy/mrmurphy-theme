@@ -18,7 +18,13 @@ class MRMurphy_Authorship_Meta {
 	 * @return array
 	 */
 	public function get( $post_id ) {
-		$data = get_post_meta( $post_id, MRMURPHY_AUTHORSHIP_META_KEY, true );
+		$json = get_post_meta( $post_id, MRMURPHY_AUTHORSHIP_META_KEY, true );
+
+		if ( empty( $json ) ) {
+			return array();
+		}
+
+		$data = json_decode( $json, true );
 
 		if ( ! is_array( $data ) ) {
 			return array();

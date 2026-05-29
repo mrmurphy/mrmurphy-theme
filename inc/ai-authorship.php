@@ -58,7 +58,7 @@ new MRMurphy_Authorship();
  * @param int $post_id Post ID.
  */
 function mrmurphy_authorship_render( $post_id ) {
-	MRMurphy_Authorship_Render::render( $post_id );
+	MRMurphy_Authorship_Render::render_post( $post_id );
 }
 
 /**
