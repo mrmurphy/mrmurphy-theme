@@ -30,6 +30,9 @@ require_once MRMURPHY_DIR . '/inc/template-functions.php';
 // Mega menu walker
 require_once MRMURPHY_DIR . '/inc/mega-menu-walker.php';
 
+// AI Authorship
+require_once MRMURPHY_DIR . '/inc/ai-authorship.php';
+
 /**
  * Filter navigation menu items to remove "coming soon" links
  */

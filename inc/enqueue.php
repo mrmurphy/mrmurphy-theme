@@ -102,6 +102,23 @@ function mrmurphy_scripts() {
         true
     );
 
+    // AI Authorship frontend styles
+    wp_enqueue_style(
+        'mrmurphy-authorship',
+        MRMURPHY_URI . '/assets/css/ai-authorship.css',
+        array( 'mrmurphy-animations' ),
+        MRMURPHY_VERSION
+    );
+
+    // AI Authorship frontend script
+    wp_enqueue_script(
+        'mrmurphy-authorship',
+        MRMURPHY_URI . '/assets/js/ai-authorship.js',
+        array(),
+        MRMURPHY_VERSION,
+        true
+    );
+
     // Comment reply script
     if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
         wp_enqueue_script( 'comment-reply' );
@@ -118,6 +135,9 @@ function mrmurphy_editor_styles() {
 
     // Editor-specific styles
     add_editor_style( 'assets/css/editor.css' );
+
+    // AI Authorship editor styles
+    add_editor_style( 'assets/css/ai-authorship-editor.css' );
 }
 add_action( 'after_setup_theme', 'mrmurphy_editor_styles' );
 

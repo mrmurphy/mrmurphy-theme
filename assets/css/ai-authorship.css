@@ -1,0 +1,204 @@
+/**
+ * AI Authorship Frontend Styles
+ *
+ * Pill button + expandable details section.
+ * Icons by Heroicons, licensed under MIT (https://heroicons.com).
+ *
+ * @package mrmurphy-theme
+ */
+
+/* ---- Pill Button ---- */
+
+.authorship-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-xs, 4px);
+	padding: var(--space-xs, 4px) var(--space-sm, 8px);
+	border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
+	border-radius: var(--radius-full, 9999px);
+	background: var(--color-white, #fff);
+	color: var(--color-text, #1a1a1a);
+	font-size: var(--font-size-xs, 12px);
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+	transition: var(--transition-fast, 0.15s ease);
+	white-space: nowrap;
+	user-select: none;
+}
+
+.authorship-pill:hover {
+	border-color: var(--color-text, #1a1a1a);
+	background: var(--color-gray-50, #f9fafb);
+}
+
+.authorship-pill:focus-visible {
+	outline: 2px solid var(--border-focus, #3b82f6);
+	outline-offset: 2px;
+}
+
+.authorship-pill--expanded {
+	border-color: var(--color-text, #1a1a1a);
+	background: var(--color-gray-50, #f9fafb);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.authorship-pill__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	color: var(--color-green, #16a34a);
+}
+
+.authorship-pill__icon svg {
+	width: 16px;
+	height: 16px;
+}
+
+.authorship-pill__label {
+	letter-spacing: -0.01em;
+}
+
+.authorship-pill__chevron {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform var(--transition-fast, 0.15s ease);
+}
+
+.authorship-pill__chevron::after {
+	content: '';
+	display: block;
+	width: 8px;
+	height: 8px;
+	border-right: 1.5px solid currentColor;
+	border-bottom: 1.5px solid currentColor;
+	transform: rotate(45deg);
+	margin-top: -2px;
+}
+
+.authorship-pill--expanded .authorship-pill__chevron {
+	transform: rotate(-135deg);
+}
+
+/* ---- Details Section ---- */
+
+.authorship-details {
+	overflow: hidden;
+	max-height: 0;
+	opacity: 0;
+	transition:
+		max-height var(--transition-base, 0.3s ease),
+		opacity var(--transition-fast, 0.2s ease);
+}
+
+.authorship-details--visible {
+	max-height: 600px;
+	opacity: 1;
+}
+
+/* ---- Category Block ---- */
+
+.authorship-category {
+	border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.06));
+	padding: var(--space-xs, 4px) 0;
+}
+
+.authorship-category:first-child {
+	padding-top: 0;
+	border-top: none;
+}
+
+.authorship-category__header {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2xs, 2px);
+	padding: var(--space-2xs, 2px) var(--space-xs, 4px);
+	border-radius: var(--radius-sm, 4px);
+	background: color-mix(in srgb, var(--cat-color, var(--color-purple)) 10%, transparent);
+	color: var(--cat-color, var(--color-purple));
+	font-size: var(--font-size-2xs, 11px);
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.authorship-category__icon {
+	display: inline-flex;
+	align-items: center;
+}
+
+.authorship-category__icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.authorship-category__count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: var(--radius-full, 9999px);
+	background: var(--cat-color, var(--color-purple));
+	color: var(--color-white, #fff);
+	font-size: 10px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+/* ---- Category List ---- */
+
+.authorship-category__list {
+	list-style: none;
+	margin: var(--space-2xs, 2px) 0 0 0;
+	padding: 0;
+}
+
+.authorship-category__item {
+	padding: var(--space-2xs, 2px) var(--space-xs, 4px);
+	font-size: var(--font-size-2xs, 11px);
+	color: var(--color-text-secondary, #6b7280);
+	line-height: 1.6;
+}
+
+.authorship-category__link {
+	color: var(--color-text-secondary, #6b7280);
+	text-decoration: none;
+	border-bottom: 1px dotted var(--border-color, rgba(0, 0, 0, 0.15));
+	transition: var(--transition-fast, 0.15s ease);
+}
+
+.authorship-category__link:hover {
+	color: var(--color-text, #1a1a1a);
+	border-bottom-style: solid;
+}
+
+/* ---- Reduced Motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+	.authorship-details {
+		transition: none;
+	}
+
+	.authorship-pill--expanded .authorship-pill__chevron {
+		transition: none;
+	}
+}
+
+/* ---- Screen Reader Only ---- */
+
+.screen-reader-text {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
