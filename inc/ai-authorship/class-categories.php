@@ -252,7 +252,7 @@ class MRMurphy_Authorship_Categories {
 
 		if ( isset( $icons[ $name ] ) ) {
 			return sprintf(
-				'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="%d" height="%d" aria-hidden="true">%s</svg>',
+				'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="%d" height="%d" aria-hidden="true">%s</svg>',
 				$width,
 				$height,
 				$icons[ $name ]
@@ -261,7 +261,7 @@ class MRMurphy_Authorship_Categories {
 
 		// Fallback: try to render a generic circle with the first letter.
 		return sprintf(
-			'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16" width="%d" height="%d" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>',
+			'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="%d" height="%d" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>',
 			$width,
 			$height
 		);

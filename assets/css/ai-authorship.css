@@ -73,7 +73,6 @@
   width: 20px;
   height: 20px;
   margin-left: var(--space-1, 0.25rem);
-  transition: transform var(--transition-fast, 150ms ease);
   flex-shrink: 0;
 }
 
@@ -85,10 +84,11 @@
   border-right: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg);
-  margin-top: -1px;
+  transform-origin: center;
+  transition: transform var(--transition-fast, 150ms ease);
 }
 
-.authorship-pill--expanded .authorship-pill__chevron {
+.authorship-pill--expanded .authorship-pill__chevron::after {
   transform: rotate(-135deg);
 }
 
