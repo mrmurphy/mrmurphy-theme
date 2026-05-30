@@ -42,6 +42,12 @@ get_template_part( 'template-parts/header' );
                     <span class="post-meta__item">
                         <?php echo esc_html( mrmurphy_reading_time() ); ?>
                     </span>
+
+                    <?php if ( function_exists( 'mrmurphy_authorship_render' ) ) : ?>
+                        <span class="post-meta__item">
+                            <?php mrmurphy_authorship_render( get_the_ID() ); ?>
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
         </header>
@@ -71,6 +77,12 @@ get_template_part( 'template-parts/header' );
                 <span class="post-meta__item">
                     <?php echo esc_html( mrmurphy_reading_time() ); ?>
                 </span>
+
+                <?php if ( function_exists( 'mrmurphy_authorship_render' ) ) : ?>
+                    <span class="post-meta__item">
+                        <?php mrmurphy_authorship_render( get_the_ID() ); ?>
+                    </span>
+                <?php endif; ?>
             </div>
         </header>
     <?php endif; ?>
@@ -83,11 +95,6 @@ get_template_part( 'template-parts/header' );
             'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'mrmurphy' ),
             'after'  => '</div>',
         ) );
-
-        // AI Authorship attribution
-        if ( function_exists( 'mrmurphy_authorship_render' ) ) {
-            mrmurphy_authorship_render( get_the_ID() );
-        }
         ?>
     </div>
 

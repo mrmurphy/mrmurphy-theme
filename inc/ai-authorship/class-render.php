@@ -48,8 +48,11 @@ class MRMurphy_Authorship_Render {
 		$data   = $this->meta->get( $post_id );
 		$unique_id = 'authorship-' . $post_id;
 
+		echo '<div class="authorship-pill--wrapper">';
+		echo '<div class="authorship-backdrop" id="' . esc_attr( $unique_id ) . '-backdrop"></div>';
 		echo $this->get_pill( $counts, $unique_id );
 		echo $this->get_details( $data, $counts, $unique_id );
+		echo '</div>'; // .authorship-pill--wrapper
 	}
 
 	/**
@@ -67,7 +70,7 @@ class MRMurphy_Authorship_Render {
 		$first_color = 'var(--color-green, #16a34a)';
 		foreach ( $counts as $cat => $count ) {
 			if ( isset( $categories[ $cat ] ) ) {
-				$label = $categories[ $cat ]['label'];
+				$label = $this->categories->get_label( $cat, $count );
 				$labels[] = sprintf( '%d %s', $count, $label );
 				if ( 'var(--color-green, #16a34a)' === $first_color ) {
 					$first_color = $categories[ $cat ]['color'];
@@ -78,8 +81,8 @@ class MRMurphy_Authorship_Render {
 		$label_text = implode( ', ', $labels );
 
 		return sprintf(
-			'<button class="authorship-pill" aria-expanded="false" aria-controls="%s" id="%s-toggle">' .
-				'<span class="authorship-pill__icon" aria-hidden="true" style="color:%s;"></span>' .
+			'<button class="authorship-pill" aria-expanded="false" aria-controls="%s" id="%s-toggle" style="--pill-color:%s">' .
+				'<span class="authorship-pill__icon" aria-hidden="true"></span>' .
 				'<span class="authorship-pill__label">%s</span>' .
 				'<span class="authorship-pill__chevron" aria-hidden="true"></span>' .
 			'</button>',
@@ -100,7 +103,20 @@ class MRMurphy_Authorship_Render {
 	 */
 	private function get_details( $data, $counts, $unique_id ) {
 		$categories = $this->categories->get_all();
+		$total     = array_sum( $counts );
+
 		$details = '<div class="authorship-details" id="' . esc_attr( $unique_id ) . '" role="region">';
+
+		$details .= '<div class="authorship-details__header">';
+		$details  .= sprintf(
+			'<h3 class="authorship-details__title">%s</h3>',
+			esc_html__( 'Authorship Info', 'mrmurphy-theme' )
+		);
+		$details  .= sprintf(
+			'<p class="authorship-details__subtitle">%s</p>',
+			esc_html__( 'This post was written by the following people, bots, and tools.', 'mrmurphy-theme' )
+		);
+		$details .= '</div>'; // .authorship-details__header
 
 		foreach ( $data as $category => $entries ) {
 			if ( empty( $entries ) || ! is_array( $entries ) ) {
@@ -112,7 +128,9 @@ class MRMurphy_Authorship_Render {
 				continue;
 			}
 
-			$icon_svg = $this->categories->get_icon_svg( $cat_config['icon'], 16, 16 );
+			$icon_svg = $this->categories->get_icon_svg( $cat_config['icon'], 24, 24 );
+			$count    = count( $entries );
+			$label    = $this->categories->get_label( $category, $count );
 
 			$details .= sprintf(
 				'<div class="authorship-category" data-category="%s">',
@@ -131,12 +149,12 @@ class MRMurphy_Authorship_Render {
 
 			$details .= sprintf(
 				'<span class="authorship-category__title">%s</span>',
-				esc_html( $cat_config['label'] )
+				esc_html( $label )
 			);
 
 			$details .= sprintf(
 				'<span class="authorship-category__count">%d</span>',
-				count( $entries )
+				$count
 			);
 
 			$details .= '</div>'; // .authorship-category__header
