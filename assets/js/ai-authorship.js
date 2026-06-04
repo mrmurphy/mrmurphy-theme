@@ -44,12 +44,14 @@
 
 		// Measure body content height at expanded width.
 		details.style.width = panelW + 'px';
+		// Disable transition during measurement to get accurate scrollHeight.
+		var bodyTransition = body.style.transition;
+		body.style.transition = 'none';
 		body.style.height = 'auto';
-		// Force reflow so the browser computes layout at the new width.
-		void details.offsetHeight;
 		void body.offsetHeight;
 		var bodyH = body.scrollHeight;
 		body.style.height = '0';
+		body.style.transition = bodyTransition;
 
 		// Horizontal positioning: default left-aligned.
 		var spaceRight = vw - wrapperR.left;
