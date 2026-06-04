@@ -96,47 +96,72 @@
 
 .authorship-details {
   position: absolute;
-  top: 100%;
+  top: 0;
   left: 0;
   z-index: 50;
-  min-width: 300px;
+  width: var(--pill-w, 100px);
   max-width: 380px;
-  width: max(100%, 300px);
-  margin-top: 8px;
-  margin-bottom: 0;
   background: var(--surface-raised-1);
-  border-radius: var(--radius-lg, 0.75rem);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: none;
   overflow: hidden;
-  /* Start state: slightly above, scaled down, invisible */
-  transform: translateY(-8px) scale(0.96);
-  transform-origin: top left;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transition:
-    transform var(--transition-normal, 250ms cubic-bezier(0.16, 1, 0.3, 1)),
-    opacity var(--transition-fast, 150ms ease),
-    visibility 0s linear 250ms;
+    width 250ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms ease,
+    box-shadow 250ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Visible — expanded to full panel width. */
 .authorship-details--visible {
-  transform: translateY(0) scale(1);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition:
-    transform var(--transition-normal, 250ms cubic-bezier(0.16, 1, 0.3, 1)),
-    opacity var(--transition-fast, 150ms ease),
-    visibility 0s linear 0s;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-lg, 0.75rem);
 }
 
-/* ---- Panel Header ---- */
+/* ---- Panel Header (reuses pill markup) ---- */
 
 .authorship-details__header {
+  width: 100%;
+  justify-content: flex-start;
+  cursor: pointer;
+  border-radius: var(--radius-full, 9999px);
+  transition:
+    border-radius 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.authorship-details--visible .authorship-details__header {
+  border-radius: var(--radius-lg, 0.75rem) var(--radius-lg, 0.75rem) 0 0;
+}
+
+/* Header inherits expanded pill colors; override hover inside panel. */
+.authorship-details__header:hover,
+.authorship-details__header:focus-visible {
+  background: var(--pill-color, var(--color-purple));
+  color: var(--surface-base);
+}
+
+/* ---- Panel Body ---- */
+
+.authorship-details__body {
+  height: 0;
+  overflow: hidden;
+  transition: height 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* When visible, height is set via inline style by JS. */
+
+/* ---- Info Section (title + subtitle) ---- */
+
+.authorship-details__info {
   padding: var(--space-5, 1.25rem) var(--space-5, 1.25rem) var(--space-3, 0.75rem);
   text-align: left;
 }
@@ -161,13 +186,18 @@
   text-align: left;
 }
 
-.authorship-details__header + .authorship-category {
+.authorship-details__info + .authorship-category,
+.authorship-category {
+  border-top-color: var(--border-subtle-color, color-mix(in srgb, var(--color-fg) 8%, transparent));
+}
+
+.authorship-details__info + .authorship-category {
   border-top: var(--border-subtle);
 }
 
 /* ---- Category Cards ---- */
 
-.authorship-details {
+.authorship-details__body {
   max-height: 70vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -287,6 +317,8 @@
 @media (prefers-reduced-motion: reduce) {
   .authorship-pill--expanded .authorship-pill__chevron,
   .authorship-details,
+  .authorship-details__body,
+  .authorship-details__header,
   .authorship-category__link::after {
     transition: none !important;
   }
@@ -295,8 +327,8 @@
 /* ---- Responsive: fit narrow viewports ---- */
 
 @media (max-width: 480px) {
-  .authorship-details {
-    min-width: calc(100vw - var(--space-8, 2rem));
-    max-width: calc(100vw - var(--space-8, 2rem));
+  .authorship-details--visible {
+    width: calc(100vw - var(--space-8, 2rem)) !important;
+    max-width: calc(100vw - var(--space-8, 2rem)) !important;
   }
 }

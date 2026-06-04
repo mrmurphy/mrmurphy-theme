@@ -17,6 +17,9 @@ class MRMurphy_Authorship_Render {
 	/** @var MRMurphy_Authorship_Meta */
 	private $meta;
 
+	/** @var int */
+	private $current_post_id;
+
 	public function __construct( $categories, $meta ) {
 		$this->categories = $categories;
 		$this->meta       = $meta;
@@ -44,40 +47,49 @@ class MRMurphy_Authorship_Render {
 			return;
 		}
 
-		$counts = $this->meta->get_counts( $post_id );
-		$data   = $this->meta->get( $post_id );
-		$unique_id = 'authorship-' . $post_id;
+		$this->current_post_id = $post_id;
+		$data                  = $this->meta->get( $post_id );
+		$counts                = $this->meta->get_counts( $post_id );
+		$unique_id             = 'authorship-' . $post_id;
 
 		echo '<div class="authorship-pill--wrapper">';
-		echo $this->get_pill( $counts, $unique_id );
-		echo $this->get_details( $data, $counts, $unique_id );
+		echo $this->get_pill( $unique_id );
+		echo $this->get_details( $data, $unique_id );
 		echo '</div>'; // .authorship-pill--wrapper
+	}
+
+	/**
+	 * Get pill label and color data.
+	 *
+	 * @return array { label: string, color: string }
+	 */
+	private function get_pill_data() {
+		$counts     = $this->meta->get_counts( $this->current_post_id );
+		$categories = $this->categories->get_all();
+
+		$labels      = array();
+		$first_color = 'var(--color-green, #16a34a)';
+		foreach ( $counts as $cat => $count ) {
+			if ( isset( $categories[ $cat ] ) ) {
+				$labels[]    = sprintf( '%d %s', $count, $this->categories->get_label( $cat, $count ) );
+				$first_color = $categories[ $cat ]['color'];
+			}
+		}
+
+		return array(
+			'label' => implode( ', ', $labels ),
+			'color' => $first_color,
+		);
 	}
 
 	/**
 	 * Get the pill button markup.
 	 *
-	 * @param array  $counts    Entry counts per category.
 	 * @param string $unique_id Unique ID for aria attributes.
 	 * @return string
 	 */
-	private function get_pill( $counts, $unique_id ) {
-		$total = array_sum( $counts );
-		$categories = $this->categories->get_all();
-
-		$labels = array();
-		$first_color = 'var(--color-green, #16a34a)';
-		foreach ( $counts as $cat => $count ) {
-			if ( isset( $categories[ $cat ] ) ) {
-				$label = $this->categories->get_label( $cat, $count );
-				$labels[] = sprintf( '%d %s', $count, $label );
-				if ( 'var(--color-green, #16a34a)' === $first_color ) {
-					$first_color = $categories[ $cat ]['color'];
-				}
-			}
-		}
-
-		$label_text = implode( ', ', $labels );
+	private function get_pill( $unique_id ) {
+		$pill = $this->get_pill_data();
 
 		return sprintf(
 			'<button class="authorship-pill" aria-expanded="false" aria-controls="%s" id="%s-toggle" style="--pill-color:%s">' .
@@ -87,36 +99,48 @@ class MRMurphy_Authorship_Render {
 			'</button>',
 			esc_attr( $unique_id ),
 			esc_attr( $unique_id ),
-			esc_attr( $first_color ),
-			esc_html( $label_text )
+			esc_attr( $pill['color'] ),
+			esc_html( $pill['label'] )
 		);
 	}
 
 	/**
 	 * Get the details section markup.
 	 *
-	 * @param array  $data    Full authorship data.
-	 * @param array  $counts  Entry counts per category.
+	 * @param array  $data      Full authorship data.
 	 * @param string $unique_id Unique ID for aria attributes.
 	 * @return string
 	 */
-	private function get_details( $data, $counts, $unique_id ) {
+	private function get_details( $data, $unique_id ) {
 		$categories = $this->categories->get_all();
-		$total     = array_sum( $counts );
+		$pill       = $this->get_pill_data();
 
 		$details = '<div class="authorship-details" id="' . esc_attr( $unique_id ) . '" role="region">';
 
-		$details .= '<div class="authorship-details__header">';
-		$details  .= sprintf(
+		// Header — matches pill appearance when collapsed.
+		$details .= sprintf(
+			'<div class="authorship-pill authorship-pill--expanded authorship-details__header" style="--pill-color:%s">',
+			esc_attr( $pill['color'] )
+		);
+		$details .= '<span class="authorship-pill__icon" aria-hidden="true"></span>';
+		$details .= sprintf( '<span class="authorship-pill__label">%s</span>', esc_html( $pill['label'] ) );
+		$details .= '<span class="authorship-pill__chevron" aria-hidden="true"></span>';
+		$details .= '</div>'; // .authorship-details__header
+
+		// Body — animates from height 0.
+		$details .= '<div class="authorship-details__body">';
+		$details .= '<div class="authorship-details__info">';
+		$details .= sprintf(
 			'<h3 class="authorship-details__title">%s</h3>',
 			esc_html__( 'Authorship Info', 'mrmurphy-theme' )
 		);
-		$details  .= sprintf(
+		$details .= sprintf(
 			'<p class="authorship-details__subtitle">%s</p>',
 			esc_html__( 'This post was written by the following people, bots, and tools.', 'mrmurphy-theme' )
 		);
-		$details .= '</div>'; // .authorship-details__header
+		$details .= '</div>'; // .authorship-details__info
 
+		$counts = $this->meta->get_counts( $this->current_post_id );
 		foreach ( $data as $category => $entries ) {
 			if ( empty( $entries ) || ! is_array( $entries ) ) {
 				continue;
@@ -181,6 +205,7 @@ class MRMurphy_Authorship_Render {
 			$details .= '</div>'; // .authorship-category
 		}
 
+		$details .= '</div>'; // .authorship-details__body
 		$details .= '</div>'; // .authorship-details
 
 		return $details;
