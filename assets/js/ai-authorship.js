@@ -84,7 +84,6 @@
 		details.style.visibility = 'visible';
 		details.style.pointerEvents = 'none';
 		details.style.boxShadow = 'none';
-		details.style.borderRadius = '9999px';
 
 		// Hide pill, show header.
 		pill.style.visibility = 'hidden';
