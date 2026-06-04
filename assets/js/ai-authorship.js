@@ -27,7 +27,7 @@
 		var header = details.querySelector( '.authorship-details__header' );
 		var body   = details.querySelector( '.authorship-details__body' );
 
-		if ( ! header || ! body ) {
+		if ( ! body ) {
 			return;
 		}
 
@@ -73,7 +73,7 @@
 			details.style.right = 'auto';
 		}
 
-		// Vertical positioning: default below pill (top: 0 + pill height gap).
+		// Vertical positioning: panel sits below the pill.
 		var spaceBelow = vh - wrapperR.bottom;
 		var flipAbove  = false;
 		if ( spaceBelow < bodyH + pillW && wrapperR.top > bodyH + pillW + 8 ) {
@@ -84,9 +84,9 @@
 			details.style.transformOrigin = rightAlign ? 'bottom right' : 'bottom left';
 			flipAbove = true;
 		} else {
-			details.style.top = '0';
+			details.style.top = '100%';
 			details.style.bottom = 'auto';
-			details.style.marginTop = '0';
+			details.style.marginTop = '8px';
 			details.style.marginBottom = '0';
 			details.style.transformOrigin = rightAlign ? 'top right' : 'top left';
 		}
@@ -99,10 +99,10 @@
 		details.style.pointerEvents = 'none';
 		details.style.boxShadow = 'none';
 
-		// Hide pill, show header.
-		pill.style.visibility = 'hidden';
-		pill.style.pointerEvents = 'none';
-		header.style.visibility = 'visible';
+		// Hide panel header; pill stays visible and animates its width.
+		if ( header ) {
+			header.style.visibility = 'hidden';
+		}
 
 		// Apply expanded state on next frame to trigger transitions.
 		requestAnimationFrame( function () {
@@ -111,6 +111,7 @@
 			details.style.pointerEvents = 'auto';
 			details.style.boxShadow = '';
 			body.style.height = bodyH + 'px';
+			pill.style.width = panelW + 'px';
 		} );
 	}
 
@@ -121,12 +122,6 @@
 	 * @param {HTMLElement} details The panel.
 	 */
 	function closePanel( pill, details ) {
-		var header = details.querySelector( '.authorship-details__header' );
-
-		if ( ! header ) {
-			return;
-		}
-
 		var body = details.querySelector( '.authorship-details__body' );
 
 		// Animate height, width, and opacity simultaneously.
@@ -137,20 +132,19 @@
 		details.classList.remove( 'authorship-details--visible' );
 		details.style.pointerEvents = 'none';
 
-		// Reset width to pill-width (animates via CSS transition).
+		// Reset pill and panel width to pill-width (both animate via CSS transition).
 		var pillW = details.style.getPropertyValue( '--pill-w' );
 		if ( pillW ) {
 			details.style.width = pillW;
+			pill.style.width = pillW;
 		}
 
-		// After all transitions complete, swap back to pill.
+		// After all transitions complete, hide panel.
 		setTimeout( function () {
-			pill.style.visibility = 'visible';
-			pill.style.pointerEvents = 'auto';
-			header.style.visibility = 'hidden';
 			details.style.visibility = 'hidden';
 			details.style.opacity = '0';
 			body.style.height = '0';
+			pill.style.width = '';
 		}, 300 );
 	}
 
