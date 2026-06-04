@@ -44,14 +44,14 @@
 
 		// Measure body content height at expanded width.
 		details.style.width = panelW + 'px';
-		// Disable transition during measurement to get accurate scrollHeight.
-		var bodyTransition = body.style.transition;
+		// Clear constraints to measure natural content height.
+		body.style.removeProperty( 'height' );
+		body.style.removeProperty( 'max-height' );
 		body.style.transition = 'none';
-		body.style.height = 'auto';
 		void body.offsetHeight;
 		var bodyH = body.scrollHeight;
+		body.style.transition = '';
 		body.style.height = '0';
-		body.style.transition = bodyTransition;
 
 		// Horizontal positioning: default left-aligned.
 		var spaceRight = vw - wrapperR.left;
