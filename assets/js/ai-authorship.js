@@ -95,6 +95,7 @@
 			details.classList.add( 'authorship-details--visible' );
 			details.style.width = panelW + 'px';
 			details.style.pointerEvents = 'auto';
+			details.style.boxShadow = '';
 			body.style.height = bodyH + 'px';
 		} );
 	}
@@ -114,31 +115,28 @@
 
 		var body = details.querySelector( '.authorship-details__body' );
 
-		// Phase 1: collapse body height.
+		// Animate height, width, and opacity simultaneously.
 		if ( body ) {
 			body.style.height = '0';
 		}
 
-		// Phase 2: after body collapse, let width + opacity animate via CSS transitions.
+		details.classList.remove( 'authorship-details--visible' );
+		details.style.pointerEvents = 'none';
+
+		// Reset width to pill-width (animates via CSS transition).
+		var pillW = details.style.getPropertyValue( '--pill-w' );
+		if ( pillW ) {
+			details.style.width = pillW;
+		}
+
+		// After all transitions complete, swap back to pill.
 		setTimeout( function () {
-			details.classList.remove( 'authorship-details--visible' );
-			details.style.pointerEvents = 'none';
-
-			// Reset width to pill-width (animates via CSS transition).
-			var pillW = details.style.getPropertyValue( '--pill-w' );
-			if ( pillW ) {
-				details.style.width = pillW;
-			}
-
-			// Phase 3: after width + opacity done, swap back to pill.
-			setTimeout( function () {
-				pill.style.visibility = 'visible';
-				pill.style.pointerEvents = 'auto';
-				header.style.visibility = 'hidden';
-				details.style.visibility = 'hidden';
-				details.style.opacity = '0';
-				body.style.height = '0';
-			}, 300 );
+			pill.style.visibility = 'visible';
+			pill.style.pointerEvents = 'auto';
+			header.style.visibility = 'hidden';
+			details.style.visibility = 'hidden';
+			details.style.opacity = '0';
+			body.style.height = '0';
 		}, 300 );
 	}
 
