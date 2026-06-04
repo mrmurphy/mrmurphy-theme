@@ -43,13 +43,21 @@
 		panelW = Math.max( panelW, 260 );
 
 		// Measure body content height at expanded width.
+		// Disable transitions so width applies immediately.
+		var detailsTransition = details.style.transition;
+		details.style.transition = 'none';
 		details.style.width = panelW + 'px';
-		// Clear constraints to measure natural content height.
-		body.style.removeProperty( 'height' );
 		body.style.removeProperty( 'max-height' );
+		body.style.height = 'auto';
 		body.style.transition = 'none';
 		void body.offsetHeight;
-		var bodyH = body.scrollHeight;
+		// Sum children heights directly for consistent measurement.
+		var bodyH = 0;
+		var children = body.children;
+		for ( var i = 0; i < children.length; i++ ) {
+			bodyH += children[i].getBoundingClientRect().height;
+		}
+		details.style.transition = detailsTransition;
 		body.style.transition = '';
 		body.style.height = '0';
 
