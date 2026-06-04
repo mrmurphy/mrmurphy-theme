@@ -49,7 +49,6 @@ class MRMurphy_Authorship_Render {
 		$unique_id = 'authorship-' . $post_id;
 
 		echo '<div class="authorship-pill--wrapper">';
-		echo '<div class="authorship-backdrop" id="' . esc_attr( $unique_id ) . '-backdrop"></div>';
 		echo $this->get_pill( $counts, $unique_id );
 		echo $this->get_details( $data, $counts, $unique_id );
 		echo '</div>'; // .authorship-pill--wrapper
