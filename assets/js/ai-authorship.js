@@ -35,17 +35,21 @@
 		var pillRect = pill.getBoundingClientRect();
 		var pillW    = pillRect.width;
 
-		// Measure body content height (temporarily unclip).
-		body.style.height = 'auto';
-		var bodyH = body.scrollHeight;
-		body.style.height = '0';
-
-		// Compute target panel width.
+		// Compute target panel width first (needed for accurate body measurement).
 		var vw       = window.innerWidth;
 		var vh       = window.innerHeight;
 		var wrapperR = wrapper.getBoundingClientRect();
 		var panelW   = Math.min( 380, Math.max( pillW, vw - wrapperR.left - 16 ) );
 		panelW = Math.max( panelW, 260 );
+
+		// Measure body content height at expanded width.
+		details.style.width = panelW + 'px';
+		body.style.height = 'auto';
+		// Force reflow so the browser computes layout at the new width.
+		void details.offsetHeight;
+		void body.offsetHeight;
+		var bodyH = body.scrollHeight;
+		body.style.height = '0';
 
 		// Horizontal positioning: default left-aligned.
 		var spaceRight = vw - wrapperR.left;
