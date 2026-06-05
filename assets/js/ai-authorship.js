@@ -2,9 +2,10 @@
  * AI Authorship Frontend Interactions
  *
  * Pill-to-panel animation: the pill stays in-flow to reserve space.
- * On open, the pill is hidden and the panel (positioned absolutely at
- * the pill's top edge) animates from pill-width to full panel width
- * while the body grows from height 0. On close, the reverse.
+ * On open, the pill fades out (opacity 0, keeps layout) and the panel
+ * (positioned absolutely at the pill's top edge) animates from
+ * pill-width to full panel width while the body grows from height 0.
+ * On close, the reverse.
  *
  * @package mrmurphy-theme
  */
@@ -27,7 +28,7 @@
 		var header = details.querySelector( '.authorship-details__header' );
 		var body   = details.querySelector( '.authorship-details__body' );
 
-		if ( ! body ) {
+		if ( ! header || ! body ) {
 			return;
 		}
 
@@ -63,6 +64,7 @@
 
 		// Horizontal positioning: default left-aligned.
 		var spaceRight = vw - wrapperR.left;
+		var spaceBelow = vh - wrapperR.bottom;
 		var rightAlign = false;
 		if ( spaceRight < panelW ) {
 			details.style.right = '0';
@@ -73,20 +75,17 @@
 			details.style.right = 'auto';
 		}
 
-		// Vertical positioning: panel sits below the pill.
-		var spaceBelow = vh - wrapperR.bottom;
-		var flipAbove  = false;
+		// Vertical positioning: panel overlays pill, then expands.
 		if ( spaceBelow < bodyH + pillW && wrapperR.top > bodyH + pillW + 8 ) {
 			details.style.top = 'auto';
 			details.style.bottom = '100%';
 			details.style.marginBottom = '8px';
 			details.style.marginTop = '0';
 			details.style.transformOrigin = rightAlign ? 'bottom right' : 'bottom left';
-			flipAbove = true;
 		} else {
-			details.style.top = '100%';
+			details.style.top = '0';
 			details.style.bottom = 'auto';
-			details.style.marginTop = '8px';
+			details.style.marginTop = '0';
 			details.style.marginBottom = '0';
 			details.style.transformOrigin = rightAlign ? 'top right' : 'top left';
 		}
@@ -94,15 +93,14 @@
 		// Set collapsed state: pill-width, body at 0.
 		details.style.setProperty( '--pill-w', pillW + 'px' );
 		details.style.width = pillW + 'px';
-		details.style.opacity = '1';
 		details.style.visibility = 'visible';
 		details.style.pointerEvents = 'none';
 		details.style.boxShadow = 'none';
 
-		// Hide panel header; pill stays visible and animates its width.
-		if ( header ) {
-			header.style.visibility = 'hidden';
-		}
+		// Hide pill (keeps layout), show header overlay.
+		pill.style.visibility = 'hidden';
+		pill.style.pointerEvents = 'none';
+		header.style.visibility = 'visible';
 
 		// Apply expanded state on next frame to trigger transitions.
 		requestAnimationFrame( function () {
@@ -111,7 +109,6 @@
 			details.style.pointerEvents = 'auto';
 			details.style.boxShadow = '';
 			body.style.height = bodyH + 'px';
-			pill.style.width = panelW + 'px';
 		} );
 	}
 
@@ -122,30 +119,36 @@
 	 * @param {HTMLElement} details The panel.
 	 */
 	function closePanel( pill, details ) {
-		var body = details.querySelector( '.authorship-details__body' );
-
-		// Animate height, width, and opacity simultaneously.
-		if ( body ) {
-			body.style.height = '0';
+		var wrapper = pill.closest( '.authorship-pill--wrapper' );
+		if ( ! wrapper ) {
+			return;
 		}
 
-		details.classList.remove( 'authorship-details--visible' );
-		details.style.pointerEvents = 'none';
+		var header = details.querySelector( '.authorship-details__header' );
+		var body   = details.querySelector( '.authorship-details__body' );
 
-		// Reset pill and panel width to pill-width (both animate via CSS transition).
-		var pillW = details.style.getPropertyValue( '--pill-w' );
-		if ( pillW ) {
-			details.style.width = pillW;
-			pill.style.width = pillW;
+		if ( ! body ) {
+			return;
 		}
 
-		// After all transitions complete, hide panel.
+		var pillW = parseFloat( details.style.getPropertyValue( '--pill-w' ) ) || pill.getBoundingClientRect().width;
+
+		// Animate height and width simultaneously.
+		details.style.width = pillW + 'px';
+		body.style.height = '0';
+
+		// After transition, hide panel and restore pill.
 		setTimeout( function () {
+			details.classList.remove( 'authorship-details--visible' );
 			details.style.visibility = 'hidden';
-			details.style.opacity = '0';
-			body.style.height = '0';
-			pill.style.width = '';
-		}, 300 );
+			details.style.pointerEvents = 'none';
+			details.style.boxShadow = 'none';
+			if ( header ) {
+				header.style.visibility = 'hidden';
+			}
+			pill.style.visibility = '';
+			pill.style.pointerEvents = '';
+		}, 250 );
 	}
 
 	document.addEventListener( 'DOMContentLoaded', function () {
