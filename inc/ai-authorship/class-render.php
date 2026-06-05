@@ -43,12 +43,7 @@ class MRMurphy_Authorship_Render {
 	 * @param int $post_id Post ID.
 	 */
 	public function render( $post_id ) {
-		if ( ! $this->meta->has_data( $post_id ) ) {
-			return;
-		}
-
-		$this->current_post_id = $post_id;
-		$data                  = $this->meta->get( $post_id );
+		$data = $this->meta->get( $post_id );
 
 		// If no human author is explicitly set, add the WP post author as human.
 		if ( empty( $data['human'] ) || ! is_array( $data['human'] ) || empty( $data['human'][0]['name'] ) ) {
@@ -61,6 +56,11 @@ class MRMurphy_Authorship_Render {
 					);
 				}
 			}
+		}
+
+		// If still no data after fallback, don't render.
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			return;
 		}
 
 		$unique_id = 'authorship-' . $post_id;
