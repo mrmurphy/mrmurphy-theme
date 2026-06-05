@@ -44,9 +44,7 @@ get_template_part( 'template-parts/header' );
                     </span>
 
                     <?php if ( function_exists( 'mrmurphy_authorship_render' ) ) : ?>
-                        <span class="post-meta__item">
-                            <?php mrmurphy_authorship_render( get_the_ID() ); ?>
-                        </span>
+                    <?php mrmurphy_authorship_render( get_the_ID() ); ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -79,9 +77,7 @@ get_template_part( 'template-parts/header' );
                 </span>
 
                 <?php if ( function_exists( 'mrmurphy_authorship_render' ) ) : ?>
-                    <span class="post-meta__item">
-                        <?php mrmurphy_authorship_render( get_the_ID() ); ?>
-                    </span>
+                <?php mrmurphy_authorship_render( get_the_ID() ); ?>
                 <?php endif; ?>
             </div>
         </header>
