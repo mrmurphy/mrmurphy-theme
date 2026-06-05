@@ -49,22 +49,53 @@ class MRMurphy_Authorship_Render {
 
 		$this->current_post_id = $post_id;
 		$data                  = $this->meta->get( $post_id );
-		$counts                = $this->meta->get_counts( $post_id );
-		$unique_id             = 'authorship-' . $post_id;
+
+		// If no human author is explicitly set, add the WP post author as human.
+		if ( empty( $data['human'] ) || ! is_array( $data['human'] ) || empty( $data['human'][0]['name'] ) ) {
+			$author_id = get_post_field( 'post_author', $post_id );
+			if ( $author_id > 0 ) {
+				$author = get_userdata( $author_id );
+				if ( $author && ! empty( $author->display_name ) ) {
+					$data['human'] = array(
+						array( 'name' => $author->display_name ),
+					);
+				}
+			}
+		}
+
+		$unique_id = 'authorship-' . $post_id;
 
 		echo '<div class="authorship-pill--wrapper">';
-		echo $this->get_pill( $unique_id );
+		echo $this->get_pill( $data, $unique_id );
 		echo $this->get_details( $data, $unique_id );
 		echo '</div>'; // .authorship-pill--wrapper
 	}
 
 	/**
+	 * Get count of entries per category from given data.
+	 *
+	 * @param array $data Authorship data.
+	 * @return array
+	 */
+	private function get_data_counts( $data ) {
+		$counts = array();
+		foreach ( $data as $category => $items ) {
+			if ( ! empty( $items ) && is_array( $items ) ) {
+				$counts[ $category ] = count( $items );
+			}
+		}
+		return $counts;
+	}
+
+	/**
 	 * Get pill label and color data.
 	 *
+	 * @param array  $data      Authorship data.
+	 * @param string $unique_id Unique ID for aria attributes.
 	 * @return array { label: string, color: string }
 	 */
-	private function get_pill_data() {
-		$counts     = $this->meta->get_counts( $this->current_post_id );
+	private function get_pill_data( $data ) {
+		$counts     = $this->get_data_counts( $data );
 		$categories = $this->categories->get_all();
 
 		$labels      = array();
@@ -85,11 +116,12 @@ class MRMurphy_Authorship_Render {
 	/**
 	 * Get the pill button markup.
 	 *
-	 * @param string $unique_id Unique ID for aria attributes.
+	 * @param array  $data        Authorship data.
+	 * @param string $unique_id   Unique ID for aria attributes.
 	 * @return string
 	 */
-	private function get_pill( $unique_id ) {
-		$pill = $this->get_pill_data();
+	private function get_pill( $data, $unique_id ) {
+		$pill = $this->get_pill_data( $data );
 
 		return sprintf(
 			'<button class="authorship-pill" aria-expanded="false" aria-controls="%s" id="%s-toggle" style="--pill-color:%s">' .
@@ -113,7 +145,7 @@ class MRMurphy_Authorship_Render {
 	 */
 	private function get_details( $data, $unique_id ) {
 		$categories = $this->categories->get_all();
-		$pill       = $this->get_pill_data();
+		$pill       = $this->get_pill_data( $data );
 
 		$details = '<div class="authorship-details" id="' . esc_attr( $unique_id ) . '" role="region">';
 
@@ -140,7 +172,7 @@ class MRMurphy_Authorship_Render {
 		);
 		$details .= '</div>'; // .authorship-details__info
 
-		$counts = $this->meta->get_counts( $this->current_post_id );
+		$counts = $this->get_data_counts( $data );
 		foreach ( $data as $category => $entries ) {
 			if ( empty( $entries ) || ! is_array( $entries ) ) {
 				continue;
