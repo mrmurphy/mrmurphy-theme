@@ -24,6 +24,11 @@ class MRMurphy_Authorship_Meta {
 			return array();
 		}
 
+		// Handle case where meta is already an array (e.g. from WP-CLI --format=json).
+		if ( is_array( $json ) ) {
+			return $this->normalize( $json );
+		}
+
 		$data = json_decode( $json, true );
 
 		if ( ! is_array( $data ) ) {
