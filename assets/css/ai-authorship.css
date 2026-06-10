@@ -312,10 +312,12 @@
 /* ---- Reduced Motion ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .authorship-pill--expanded .authorship-pill__chevron,
+  .authorship-pill__chevron::after,
+  .authorship-pill--expanded .authorship-pill__chevron::after,
   .authorship-pill--wrapper > .authorship-details,
   .authorship-details__body,
   .authorship-details__header,
+  .authorship-category__link,
   .authorship-category__link::after {
     transition: none !important;
   }

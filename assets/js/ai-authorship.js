@@ -13,6 +13,61 @@
 ( function () {
 	'use strict';
 
+	var PANEL_TRANSITION_MS = 250;
+
+	/**
+	 * Whether the user prefers reduced motion.
+	 *
+	 * @return {boolean}
+	 */
+	function prefersReducedMotion() {
+		return window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+	}
+
+	/**
+	 * Panel transition duration in milliseconds.
+	 *
+	 * @return {number}
+	 */
+	function getPanelTransitionMs() {
+		return prefersReducedMotion() ? 0 : PANEL_TRANSITION_MS;
+	}
+
+	/**
+	 * Apply the fully expanded panel state.
+	 *
+	 * @param {HTMLElement} details Panel element.
+	 * @param {HTMLElement} body    Panel body element.
+	 * @param {number}      panelW  Target panel width.
+	 * @param {number}      bodyH   Target body height.
+	 */
+	function applyExpandedState( details, body, panelW, bodyH ) {
+		details.classList.add( 'authorship-details--visible' );
+		details.style.width = panelW + 'px';
+		details.style.pointerEvents = 'auto';
+		details.style.boxShadow = '';
+		body.style.height = bodyH + 'px';
+	}
+
+	/**
+	 * Hide the panel and restore the pill trigger.
+	 *
+	 * @param {HTMLElement}      pill    Pill button.
+	 * @param {HTMLElement}      details Panel element.
+	 * @param {HTMLElement|null} header  Panel header element.
+	 */
+	function finalizeClose( pill, details, header ) {
+		details.classList.remove( 'authorship-details--visible' );
+		details.style.visibility = 'hidden';
+		details.style.pointerEvents = 'none';
+		details.style.boxShadow = 'none';
+		if ( header ) {
+			header.style.visibility = 'hidden';
+		}
+		pill.style.visibility = '';
+		pill.style.pointerEvents = '';
+	}
+
 	/**
 	 * Open the authorship panel for a given pill.
 	 *
@@ -102,13 +157,14 @@
 		pill.style.pointerEvents = 'none';
 		header.style.visibility = 'visible';
 
-		// Apply expanded state on next frame to trigger transitions.
+		// Apply expanded state — instantly when reduced motion is preferred.
+		if ( prefersReducedMotion() ) {
+			applyExpandedState( details, body, panelW, bodyH );
+			return;
+		}
+
 		requestAnimationFrame( function () {
-			details.classList.add( 'authorship-details--visible' );
-			details.style.width = panelW + 'px';
-			details.style.pointerEvents = 'auto';
-			details.style.boxShadow = '';
-			body.style.height = bodyH + 'px';
+			applyExpandedState( details, body, panelW, bodyH );
 		} );
 	}
 
@@ -133,22 +189,21 @@
 
 		var pillW = parseFloat( details.style.getPropertyValue( '--pill-w' ) ) || pill.getBoundingClientRect().width;
 
+		if ( prefersReducedMotion() ) {
+			details.style.width = pillW + 'px';
+			body.style.height = '0';
+			finalizeClose( pill, details, header );
+			return;
+		}
+
 		// Animate height and width simultaneously.
 		details.style.width = pillW + 'px';
 		body.style.height = '0';
 
 		// After transition, hide panel and restore pill.
 		setTimeout( function () {
-			details.classList.remove( 'authorship-details--visible' );
-			details.style.visibility = 'hidden';
-			details.style.pointerEvents = 'none';
-			details.style.boxShadow = 'none';
-			if ( header ) {
-				header.style.visibility = 'hidden';
-			}
-			pill.style.visibility = '';
-			pill.style.pointerEvents = '';
-		}, 250 );
+			finalizeClose( pill, details, header );
+		}, getPanelTransitionMs() );
 	}
 
 	document.addEventListener( 'DOMContentLoaded', function () {

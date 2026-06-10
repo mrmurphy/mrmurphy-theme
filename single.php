@@ -10,7 +10,25 @@ get_template_part( 'template-parts/header' );
 
 <?php while ( have_posts() ) : the_post(); ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'single-post' ); ?>>
+<?php
+$is_microblog = mrmurphy_is_microblog();
+$has_title    = mrmurphy_post_has_title();
+$categories   = get_the_category();
+$display_categories = array();
+
+if ( ! empty( $categories ) ) {
+    $display_categories = array_filter(
+        $categories,
+        function ( $category ) use ( $is_microblog ) {
+            return ! $is_microblog || mrmurphy_microblog_category_slug() !== $category->slug;
+        }
+    );
+}
+
+$display_category = ! empty( $display_categories ) ? reset( $display_categories ) : null;
+?>
+
+<article id="post-<?php the_ID(); ?>" <?php post_class( $is_microblog ? 'single-post single-post--microblog' : 'single-post' ); ?>>
     <?php if ( has_post_thumbnail() ) : ?>
         <!-- Floating header with square featured image -->
         <header class="entry-header post-header--floating container">
@@ -19,22 +37,27 @@ get_template_part( 'template-parts/header' );
             </div>
 
             <div class="post-header__content">
-                <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+                <?php if ( $has_title ) : ?>
+                    <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+                <?php endif; ?>
 
                 <div class="post-meta">
+                    <?php if ( $is_microblog ) : ?>
+                        <span class="post-meta__item post-meta__microblog-tag">
+                            <a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>">#microblog</a>
+                        </span>
+                    <?php endif; ?>
+
                     <span class="post-meta__item">
                         <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
                             <?php echo esc_html( get_the_date() ); ?>
                         </time>
                     </span>
 
-                    <?php
-                    $categories = get_the_category();
-                    if ( ! empty( $categories ) ) :
-                    ?>
+                    <?php if ( $display_category ) : ?>
                         <span class="post-meta__item">
-                            <a href="<?php echo esc_url( get_category_link( $categories[0]->term_id ) ); ?>">
-                                <?php echo esc_html( $categories[0]->name ); ?>
+                            <a href="<?php echo esc_url( get_category_link( $display_category->term_id ) ); ?>">
+                                <?php echo esc_html( $display_category->name ); ?>
                             </a>
                         </span>
                     <?php endif; ?>
@@ -51,23 +74,28 @@ get_template_part( 'template-parts/header' );
         </header>
     <?php else : ?>
         <!-- Standard header without featured image -->
-        <header class="entry-header container">
-            <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+        <header class="entry-header <?php echo $is_microblog ? 'entry-header--microblog' : ''; ?> container">
+            <?php if ( $has_title ) : ?>
+                <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+            <?php endif; ?>
 
             <div class="post-meta">
+                <?php if ( $is_microblog ) : ?>
+                    <span class="post-meta__item post-meta__microblog-tag">
+                        <a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>">#microblog</a>
+                    </span>
+                <?php endif; ?>
+
                 <span class="post-meta__item">
                     <time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
                         <?php echo esc_html( get_the_date() ); ?>
                     </time>
                 </span>
 
-                <?php
-                $categories = get_the_category();
-                if ( ! empty( $categories ) ) :
-                ?>
+                <?php if ( $display_category ) : ?>
                     <span class="post-meta__item">
-                        <a href="<?php echo esc_url( get_category_link( $categories[0]->term_id ) ); ?>">
-                            <?php echo esc_html( $categories[0]->name ); ?>
+                        <a href="<?php echo esc_url( get_category_link( $display_category->term_id ) ); ?>">
+                            <?php echo esc_html( $display_category->name ); ?>
                         </a>
                     </span>
                 <?php endif; ?>

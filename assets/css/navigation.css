@@ -521,7 +521,7 @@
 }
 
 /* Mega menu post preview uses post-preview layout */
-.mega-menu__post.post-preview {
+.mega-menu__post .post-preview {
   background-color: var(--surface-raised-2);
   border: var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -531,31 +531,31 @@
   grid-template-columns: minmax(60px, 100px) 1fr;
 }
 
-.mega-menu__post.post-preview:hover {
+.mega-menu__post .post-preview:hover {
   background-color: var(--surface-inset);
   box-shadow: var(--shadow-raised-1);
 }
 
 /* Smaller title font size for mega menu posts */
-.mega-menu__post.post-preview .post-preview__title {
+.mega-menu__post .post-preview .post-preview__title {
   font-size: clamp(0.625rem, 5cqi, 1.5rem);
 }
 
 /* When no image, content takes full width */
-.mega-menu__post.post-preview:not(:has(.post-preview__image)) {
+.mega-menu__post .post-preview:not(:has(.post-preview__image)) {
   grid-template-columns: 1fr;
 }
 
-.mega-menu__post.post-preview:not(:has(.post-preview__image)) .post-preview__content {
+.mega-menu__post .post-preview:not(:has(.post-preview__image)) .post-preview__content {
   grid-column: 1;
 }
 
 @media (max-width: 639px) {
-  .mega-menu__post.post-preview {
+  .mega-menu__post .post-preview {
     grid-template-columns: 70px 1fr;
   }
-  
-  .mega-menu__post.post-preview:not(:has(.post-preview__image)) {
+
+  .mega-menu__post .post-preview:not(:has(.post-preview__image)) {
     grid-template-columns: 1fr;
   }
 }

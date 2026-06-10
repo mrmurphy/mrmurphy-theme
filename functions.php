@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MRMURPHY_VERSION', '1.0.11' );
+define( 'MRMURPHY_VERSION', '1.0.13' );
 define( 'MRMURPHY_DIR', get_template_directory() );
 define( 'MRMURPHY_URI', get_template_directory_uri() );
 
@@ -26,6 +26,9 @@ require_once MRMURPHY_DIR . '/inc/customizer.php';
 
 // Template helper functions
 require_once MRMURPHY_DIR . '/inc/template-functions.php';
+
+// Microblog helpers and auto-assignment
+require_once MRMURPHY_DIR . '/inc/microblog.php';
 
 // Mega menu walker
 require_once MRMURPHY_DIR . '/inc/mega-menu-walker.php';
