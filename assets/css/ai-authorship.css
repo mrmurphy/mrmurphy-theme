@@ -92,7 +92,9 @@
 
 /* ---- Dropdown Details Panel ---- */
 
-.authorship-details {
+/* Scope beats Gutenberg wp-components.css [role=region]{position:relative}
+   which only loads for logged-in users and was overriding position:absolute. */
+.authorship-pill--wrapper > .authorship-details {
   position: absolute;
   top: 0;
   left: 0;
@@ -113,7 +115,7 @@
 }
 
 /* Visible — expanded to full panel width. */
-.authorship-details--visible {
+.authorship-pill--wrapper > .authorship-details.authorship-details--visible {
   max-height: none;
   visibility: visible;
   pointer-events: auto;
@@ -311,7 +313,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .authorship-pill--expanded .authorship-pill__chevron,
-  .authorship-details,
+  .authorship-pill--wrapper > .authorship-details,
   .authorship-details__body,
   .authorship-details__header,
   .authorship-category__link::after {
@@ -322,7 +324,7 @@
 /* ---- Responsive: fit narrow viewports ---- */
 
 @media (max-width: 480px) {
-  .authorship-details--visible {
+  .authorship-pill--wrapper > .authorship-details.authorship-details--visible {
     width: calc(100vw - var(--space-8, 2rem)) !important;
     max-width: calc(100vw - var(--space-8, 2rem)) !important;
   }
