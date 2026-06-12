@@ -222,7 +222,7 @@ tr:hover td {
 /* ===== SELECTION ===== */
 ::selection {
   background-color: var(--color-purple);
-  color: #ffffff;
+  color: var(--color-purple-on);
 }
 
 /* ===== ACCESSIBILITY ===== */

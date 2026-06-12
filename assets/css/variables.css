@@ -87,6 +87,19 @@
   --surface-raised-1: #ffffff;
   --surface-raised-2: #ffffff;
 
+  /*
+   * On-accent text — dark, saturated hue for text over solid accent backgrounds.
+   * Evaluated lazily so light/dark accent swaps stay in sync.
+   */
+  --accent-foreground-mix: 44%;
+
+  --color-pink-on: color-mix(in oklch, var(--color-pink) var(--accent-foreground-mix), black);
+  --color-orange-on: color-mix(in oklch, var(--color-orange) var(--accent-foreground-mix), black);
+  --color-yellow-on: color-mix(in oklch, var(--color-yellow) var(--accent-foreground-mix), black);
+  --color-green-on: color-mix(in oklch, var(--color-green) var(--accent-foreground-mix), black);
+  --color-cyan-on: color-mix(in oklch, var(--color-cyan) var(--accent-foreground-mix), black);
+  --color-purple-on: color-mix(in oklch, var(--color-purple) var(--accent-foreground-mix), black);
+
   /* Shadows */
   --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);

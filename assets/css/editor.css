@@ -148,18 +148,19 @@
     padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     background-color: #d56277;
-    color: #ffffff;
+    color: color-mix(in oklch, #d56277 44%, black);
     text-decoration: none;
 }
 
 .editor-styles-wrapper .wp-block-button__link:hover {
     background-color: #8a7db5;
+    color: color-mix(in oklch, #8a7db5 44%, black);
 }
 
 /* Selection */
 .editor-styles-wrapper ::selection {
     background-color: #8a7db5;
-    color: #ffffff;
+    color: color-mix(in oklch, #8a7db5 44%, black);
 }
 
 /* Post title */

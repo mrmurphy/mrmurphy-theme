@@ -86,7 +86,7 @@
 	padding: 0 6px;
 	border-radius: 10px;
 	background: var(--cat-color, var(--color-purple));
-	color: #fff;
+	color: color-mix(in oklch, var(--cat-color, var(--color-purple)) 44%, black);
 	font-size: 11px;
 	font-weight: 700;
 	line-height: 1;

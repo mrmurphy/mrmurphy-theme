@@ -88,6 +88,19 @@
   --surface-raised-1: #ffffff;
   --surface-raised-2: #ffffff;
 
+  /*
+   * On-accent text — dark, saturated hue for text over solid accent backgrounds.
+   * Evaluated lazily so light/dark accent swaps stay in sync.
+   */
+  --accent-foreground-mix: 44%;
+
+  --color-pink-on: color-mix(in oklch, var(--color-pink) var(--accent-foreground-mix), black);
+  --color-orange-on: color-mix(in oklch, var(--color-orange) var(--accent-foreground-mix), black);
+  --color-yellow-on: color-mix(in oklch, var(--color-yellow) var(--accent-foreground-mix), black);
+  --color-green-on: color-mix(in oklch, var(--color-green) var(--accent-foreground-mix), black);
+  --color-cyan-on: color-mix(in oklch, var(--color-cyan) var(--accent-foreground-mix), black);
+  --color-purple-on: color-mix(in oklch, var(--color-purple) var(--accent-foreground-mix), black);
+
   /* Shadows */
   --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-raised-1: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
@@ -426,7 +439,7 @@ tr:hover td {
 /* ===== SELECTION ===== */
 ::selection {
   background-color: var(--color-purple);
-  color: #ffffff;
+  color: var(--color-purple-on);
 }
 
 /* ===== ACCESSIBILITY ===== */
@@ -1192,7 +1205,7 @@ tr:hover td {
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--color-yellow) 18%, var(--surface-inset));
   border: 1px solid color-mix(in srgb, var(--color-yellow) 55%, transparent);
-  color: var(--color-yellow);
+  color: var(--color-yellow-on);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.02em;
@@ -1206,7 +1219,7 @@ tr:hover td {
 .post-meta__microblog-tag a:focus-visible {
   background: var(--color-yellow);
   border-color: var(--color-yellow);
-  color: var(--color-bg);
+  color: var(--color-yellow-on);
 }
 
 .post-meta__microblog-tag::after {
@@ -1328,7 +1341,7 @@ tr:hover td {
 .pagination .page-numbers.current,
 .nav-links .current {
   background-color: var(--color-pink);
-  color: #ffffff;
+  color: var(--color-pink-on);
   border-color: var(--color-pink);
 }
 
@@ -1501,11 +1514,12 @@ tr:hover td {
 
 .btn--primary {
   background-color: var(--color-pink);
-  color: #ffffff;
+  color: var(--color-pink-on);
 }
 
 .btn--primary:hover {
   background-color: var(--color-purple);
+  color: var(--color-purple-on);
   transform: translateY(-1px);
   box-shadow: var(--shadow-raised-1);
 }
@@ -1733,7 +1747,7 @@ tr:hover td {
   font-size: var(--font-size-xs);
   padding: var(--space-1) var(--space-2);
   background-color: var(--color-green);
-  color: #ffffff;
+  color: var(--color-green-on);
   border-radius: var(--radius-sm);
   align-self: flex-start;
   margin: 0;
@@ -1940,7 +1954,7 @@ tr:hover td {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   background-color: var(--color-pink);
-  color: #ffffff;
+  color: var(--color-pink-on);
   text-decoration: none;
   border-radius: var(--radius-md);
   transition: all var(--transition-fast);
@@ -1948,9 +1962,9 @@ tr:hover td {
 
 .comment__footer .comment-reply-link:hover {
   background-color: var(--color-purple);
+  color: var(--color-purple-on);
   transform: translateY(-1px);
   box-shadow: var(--shadow-raised-1);
-  color: #ffffff;
 }
 
 .comment-list .children {
@@ -2401,7 +2415,7 @@ tr:hover td {
   font-weight: var(--font-weight-medium);
   padding: var(--space-3) var(--space-5);
   background-color: var(--color-pink);
-  color: #ffffff;
+  color: var(--color-pink-on);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -2413,6 +2427,7 @@ tr:hover td {
 .contact-form-wrapper button[type="submit"]:hover,
 .contact-form-wrapper .gform_button:hover {
   background-color: var(--color-purple);
+  color: var(--color-purple-on);
   transform: translateY(-1px);
   box-shadow: var(--shadow-raised-1);
 }
@@ -2784,7 +2799,7 @@ tr:hover td {
   align-items: center;
   gap: var(--space-2);
   font-size: var(--font-size-xs);
-  color: #ffffff;
+  color: var(--color-cyan-on);
   background-color: var(--color-cyan);
   opacity: 0.85;
   padding: var(--space-1) var(--space-3);
@@ -2803,20 +2818,19 @@ tr:hover td {
 .profile-card__employment-btn:hover,
 .profile-card__employment-btn:focus {
   opacity: 1;
+  background-color: var(--color-cyan);
+  color: var(--color-cyan-on);
   transform: scale(1.03);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  box-shadow: var(--shadow-raised-2);
 }
 
 .profile-card__employment-btn:focus-visible {
-  outline: 2px solid var(--color-cyan);
+  outline: 2px solid var(--color-cyan-on);
   outline-offset: 3px;
 }
 
 a.profile-card__employment-btn:hover {
-  color: #ffffff;
+  color: var(--color-cyan-on);
 }
 
 .profile-card__employment-status {
@@ -2839,7 +2853,7 @@ a.profile-card__employment-btn:hover {
   display: block;
   width: 1px;
   height: 1em;
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: color-mix(in srgb, currentColor 45%, transparent);
   margin: 0 var(--space-1);
 }
 
@@ -3016,7 +3030,7 @@ a.profile-card__employment-btn:hover {
 
 .tag:hover {
   background-color: var(--color-purple);
-  color: #ffffff;
+  color: var(--color-purple-on);
 }
 
 /* ===== WORK EXPERIENCE ===== */
