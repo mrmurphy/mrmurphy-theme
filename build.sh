@@ -90,6 +90,9 @@ if [ -f "${ZIP_PATH}" ]; then
 fi
 
 # Create zip file
+echo "📦 Building asset bundles..."
+"${THEME_DIR}/scripts/build-assets.sh"
+
 echo "📦 Creating zip file..."
 cd "$THEME_DIR"
 zip -r "${ZIP_NAME}" . \

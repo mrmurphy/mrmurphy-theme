@@ -8,6 +8,7 @@
       "custom": true,
       "defaultPalette": false,
       "defaultGradients": false,
+      "defaultDuotone": false,
       "palette": [
         {
           "slug": "background",
@@ -69,6 +70,7 @@
     "typography": {
       "fluid": true,
       "customFontSize": true,
+      "defaultFontSizes": false,
       "fontFamilies": [
         {
           "fontFamily": "'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace",
@@ -115,6 +117,7 @@
     },
     "spacing": {
       "units": ["px", "em", "rem", "%", "vh", "vw"],
+      "defaultSpacingSizes": false,
       "spacingScale": {
         "steps": 7
       }

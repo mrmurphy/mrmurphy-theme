@@ -19,7 +19,6 @@ $profile_employment_status = get_theme_mod( 'mrmurphy_profile_employment_status'
 $profile_company = get_theme_mod( 'mrmurphy_profile_company', '' );
 $profile_company_url = get_theme_mod( 'mrmurphy_profile_company_url', '' );
 $profile_bio = get_theme_mod( 'mrmurphy_profile_bio', get_bloginfo( 'description' ) );
-$contact_form_shortcode = get_theme_mod( 'mrmurphy_contact_form', '' );
 $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
 ?>
 
@@ -84,10 +83,7 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                     <?php endif; ?>
 
                     <div class="profile-card__actions">
-                        <a href="#contact" class="btn btn--primary">
-                            <?php esc_html_e( 'Get in Touch', 'mrmurphy' ); ?>
-                        </a>
-                        <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
+                        <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--primary">
                             <?php esc_html_e( 'Read Blog', 'mrmurphy' ); ?>
                         </a>
                     </div>
@@ -310,25 +306,6 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
                 <p><?php esc_html_e( 'No work experience added yet', 'mrmurphy' ); ?></p>
                 <p class="skeleton-empty-state__hint"><?php esc_html_e( 'Add experience in Appearance > Customize > MrMurphy Theme', 'mrmurphy' ); ?></p>
             </div>
-            <?php endif; ?>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="section section--contact" aria-labelledby="contact-heading">
-        <div class="container">
-            <h2 id="contact-heading" class="section__title">
-                <?php esc_html_e( 'Get in Touch', 'mrmurphy' ); ?>
-            </h2>
-
-            <?php if ( $contact_form_shortcode ) : ?>
-                <div class="contact-form-wrapper">
-                    <?php echo do_shortcode( $contact_form_shortcode ); ?>
-                </div>
-            <?php else : ?>
-                <div class="contact-form-placeholder card">
-                    <p><?php esc_html_e( 'Contact form will appear here. Add a shortcode from your preferred form plugin (Contact Form 7, Gravity Forms, etc.) in the Customizer under "MrMurphy Theme > Contact Form".', 'mrmurphy' ); ?></p>
-                </div>
             <?php endif; ?>
         </div>
     </section>

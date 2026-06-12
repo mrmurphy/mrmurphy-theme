@@ -420,66 +420,78 @@
 }
 
 /* Pink tint */
+.mega-menu__categories li:nth-child(6n+1) a,
 .mega-menu__categories a[data-color-index="0"] {
   background-color: rgba(213, 98, 119, 0.2);
   border-color: rgba(213, 98, 119, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+1) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="0"] {
   background-color: rgba(255, 97, 136, 0.2);
   border-color: rgba(255, 97, 136, 0.4);
 }
 
 /* Orange tint */
+.mega-menu__categories li:nth-child(6n+2) a,
 .mega-menu__categories a[data-color-index="1"] {
   background-color: rgba(201, 125, 84, 0.2);
   border-color: rgba(201, 125, 84, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+2) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="1"] {
   background-color: rgba(252, 152, 103, 0.2);
   border-color: rgba(252, 152, 103, 0.4);
 }
 
 /* Yellow tint */
+.mega-menu__categories li:nth-child(6n+3) a,
 .mega-menu__categories a[data-color-index="2"] {
   background-color: rgba(184, 154, 71, 0.2);
   border-color: rgba(184, 154, 71, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+3) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="2"] {
   background-color: rgba(255, 216, 102, 0.2);
   border-color: rgba(255, 216, 102, 0.4);
 }
 
 /* Green tint */
+.mega-menu__categories li:nth-child(6n+4) a,
 .mega-menu__categories a[data-color-index="3"] {
   background-color: rgba(90, 154, 85, 0.2);
   border-color: rgba(90, 154, 85, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+4) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="3"] {
   background-color: rgba(169, 220, 118, 0.2);
   border-color: rgba(169, 220, 118, 0.4);
 }
 
 /* Cyan tint */
+.mega-menu__categories li:nth-child(6n+5) a,
 .mega-menu__categories a[data-color-index="4"] {
   background-color: rgba(74, 154, 165, 0.2);
   border-color: rgba(74, 154, 165, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+5) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="4"] {
   background-color: rgba(120, 220, 232, 0.2);
   border-color: rgba(120, 220, 232, 0.4);
 }
 
 /* Purple tint */
+.mega-menu__categories li:nth-child(6n+6) a,
 .mega-menu__categories a[data-color-index="5"] {
   background-color: rgba(138, 125, 181, 0.2);
   border-color: rgba(138, 125, 181, 0.4);
 }
 
+:root[data-theme="dark"] .mega-menu__categories li:nth-child(6n+6) a,
 :root[data-theme="dark"] .mega-menu__categories a[data-color-index="5"] {
   background-color: rgba(171, 157, 242, 0.2);
   border-color: rgba(171, 157, 242, 0.4);
@@ -491,6 +503,13 @@
   color: var(--category-color, var(--color-pink));
   border-color: currentColor;
 }
+
+.mega-menu__categories li:nth-child(6n+1) a:hover { color: var(--color-pink); }
+.mega-menu__categories li:nth-child(6n+2) a:hover { color: var(--color-orange); }
+.mega-menu__categories li:nth-child(6n+3) a:hover { color: var(--color-yellow); }
+.mega-menu__categories li:nth-child(6n+4) a:hover { color: var(--color-green); }
+.mega-menu__categories li:nth-child(6n+5) a:hover { color: var(--color-cyan); }
+.mega-menu__categories li:nth-child(6n+6) a:hover { color: var(--color-purple); }
 
 .mega-menu__categories a:active {
   transform: translateY(0);

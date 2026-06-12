@@ -18,6 +18,12 @@ require_once MRMURPHY_DIR . '/inc/setup.php';
 // Asset enqueueing
 require_once MRMURPHY_DIR . '/inc/enqueue.php';
 
+// Performance optimizations
+require_once MRMURPHY_DIR . '/inc/performance.php';
+
+// Front-page SEO meta from Customizer
+require_once MRMURPHY_DIR . '/inc/seo.php';
+
 // Custom post types
 require_once MRMURPHY_DIR . '/inc/custom-post-types.php';
 
@@ -29,6 +35,7 @@ require_once MRMURPHY_DIR . '/inc/template-functions.php';
 
 // Microblog helpers and auto-assignment
 require_once MRMURPHY_DIR . '/inc/microblog.php';
+require_once MRMURPHY_DIR . '/inc/microblog-embeds.php';
 
 // Mega menu walker
 require_once MRMURPHY_DIR . '/inc/mega-menu-walker.php';

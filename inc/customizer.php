@@ -156,20 +156,6 @@ function mrmurphy_customize_register( $wp_customize ) {
         'priority'    => 20,
     ) );
 
-    // Contact Form Shortcode
-    $wp_customize->add_setting( 'mrmurphy_contact_form', array(
-        'default'           => '',
-        'sanitize_callback' => 'sanitize_text_field',
-    ) );
-
-    $wp_customize->add_control( 'mrmurphy_contact_form', array(
-        'type'        => 'text',
-        'label'       => __( 'Contact Form Shortcode', 'mrmurphy' ),
-        'section'     => 'mrmurphy_forms',
-        'settings'    => 'mrmurphy_contact_form',
-        'description' => __( 'e.g., [contact-form-7 id="123"]', 'mrmurphy' ),
-    ) );
-
     // Newsletter Form Shortcode
     $wp_customize->add_setting( 'mrmurphy_newsletter_form', array(
         'default'           => '',

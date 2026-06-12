@@ -1,0 +1,62 @@
+/**
+ * Color cycling — CSS replacement for color-cycle.js
+ * Cycles Monokai Pro accent colors across section headers, nav, and tags.
+ */
+
+/* ===== SECTION TITLES ===== */
+.section--posts .section__title { color: var(--color-pink); }
+.section--tools .section__title { color: var(--color-orange); }
+.section--projects .section__title { color: var(--color-green); }
+.section--work-experience .section__title { color: var(--color-cyan); }
+.section--contact .section__title { color: var(--color-purple); }
+.section--newsletter .section__title { color: var(--color-yellow); }
+
+/* ===== MEGA MENU LABELS ===== */
+.mega-menu__column--categories .mega-menu__label { color: var(--color-pink); }
+.mega-menu__column--posts .mega-menu__label { color: var(--color-orange); }
+
+/* ===== POST NAVIGATION HEADERS ===== */
+.post-navigation__item--prev .post-navigation__header { color: var(--color-pink); }
+.post-navigation__item--next .post-navigation__header { color: var(--color-orange); }
+
+/* ===== ENTRY FOOTER TAG/CATEGORY TINTS ===== */
+.entry-footer .cat-links a:nth-child(6n+1)::after,
+.entry-footer .tag-links a:nth-child(6n+1)::after { background: rgba(213, 98, 119, 0.15); }
+.entry-footer .cat-links a:nth-child(6n+2)::after,
+.entry-footer .tag-links a:nth-child(6n+2)::after { background: rgba(201, 125, 84, 0.15); }
+.entry-footer .cat-links a:nth-child(6n+3)::after,
+.entry-footer .tag-links a:nth-child(6n+3)::after { background: rgba(184, 154, 71, 0.15); }
+.entry-footer .cat-links a:nth-child(6n+4)::after,
+.entry-footer .tag-links a:nth-child(6n+4)::after { background: rgba(90, 154, 85, 0.15); }
+.entry-footer .cat-links a:nth-child(6n+5)::after,
+.entry-footer .tag-links a:nth-child(6n+5)::after { background: rgba(74, 154, 165, 0.15); }
+.entry-footer .cat-links a:nth-child(6n+6)::after,
+.entry-footer .tag-links a:nth-child(6n+6)::after { background: rgba(138, 125, 181, 0.15); }
+
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+1)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+1)::after { background: rgba(255, 97, 136, 0.2); }
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+2)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+2)::after { background: rgba(252, 152, 103, 0.2); }
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+3)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+3)::after { background: rgba(255, 216, 102, 0.2); }
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+4)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+4)::after { background: rgba(169, 220, 118, 0.2); }
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+5)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+5)::after { background: rgba(120, 220, 232, 0.2); }
+:root[data-theme="dark"] .entry-footer .cat-links a:nth-child(6n+6)::after,
+:root[data-theme="dark"] .entry-footer .tag-links a:nth-child(6n+6)::after { background: rgba(171, 157, 242, 0.2); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+1)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+1)::after { background: rgba(255, 97, 136, 0.2); }
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+2)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+2)::after { background: rgba(252, 152, 103, 0.2); }
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+3)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+3)::after { background: rgba(255, 216, 102, 0.2); }
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+4)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+4)::after { background: rgba(169, 220, 118, 0.2); }
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+5)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+5)::after { background: rgba(120, 220, 232, 0.2); }
+  :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+6)::after,
+  :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+6)::after { background: rgba(171, 157, 242, 0.2); }
+}

@@ -190,7 +190,11 @@ function mrmurphy_get_microblog_preview_content( $post_id = null ) {
 
 	$content = get_post_field( 'post_content', $post_id );
 
-	return apply_filters( 'the_content', (string) $content );
+	mrmurphy_in_microblog_preview( true );
+	$rendered = apply_filters( 'the_content', (string) $content );
+	mrmurphy_in_microblog_preview( false );
+
+	return $rendered;
 }
 
 /**
