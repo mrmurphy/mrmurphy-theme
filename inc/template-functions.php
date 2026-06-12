@@ -8,6 +8,113 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Normalize a media URL for attachment lookup.
+ *
+ * Strips CDN/Photon hosts, query args, and generated -WxH suffixes.
+ *
+ * @param string $url Image URL.
+ * @return string
+ */
+function mrmurphy_normalize_media_url( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$url = html_entity_decode( $url, ENT_QUOTES, 'UTF-8' );
+	$url = strtok( $url, '?' );
+
+	if ( preg_match( '#^https?://i\d\.wp\.com/(.+)$#i', $url, $matches ) ) {
+		$url = 'https://' . $matches[1];
+	}
+
+	if ( str_starts_with( $url, '//' ) ) {
+		$url = ( is_ssl() ? 'https:' : 'http:' ) . $url;
+	}
+
+	if ( preg_match( '#/wp-content/uploads/(.+)$#', $url, $matches ) ) {
+		$upload_dir = wp_upload_dir();
+		$path       = preg_replace( '/-\d+x\d+(?=\.[^.]+$)/', '', $matches[1] );
+
+		return trailingslashit( $upload_dir['baseurl'] ) . ltrim( $path, '/' );
+	}
+
+	return $url;
+}
+
+/**
+ * Resolve a local media URL to an attachment ID.
+ *
+ * @param string $url Image URL.
+ * @return int Attachment ID, or 0 when not found.
+ */
+function mrmurphy_get_attachment_id_from_url( $url ) {
+	$normalized = mrmurphy_normalize_media_url( $url );
+
+	if ( '' === $normalized ) {
+		return 0;
+	}
+
+	return (int) attachment_url_to_postid( $normalized );
+}
+
+/**
+ * Output a responsive image for theme UI (avatars, icons, etc.).
+ *
+ * Uses wp_get_attachment_image() for local media so WordPress can emit srcset
+ * and WordPress.com Photon can serve resized CDN URLs. Falls back to a plain
+ * img tag for external URLs.
+ *
+ * @param int|string $source Attachment ID or image URL.
+ * @param string     $size   Registered image size.
+ * @param array      $args   Optional alt, class, loading, decoding.
+ * @return string HTML markup.
+ */
+function mrmurphy_get_responsive_image( $source, $size, $args = array() ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'alt'      => '',
+			'class'    => '',
+			'loading'  => 'lazy',
+			'decoding' => 'async',
+		)
+	);
+
+	$attachment_id = is_numeric( $source ) ? (int) $source : mrmurphy_get_attachment_id_from_url( $source );
+
+	if ( $attachment_id ) {
+		$attr = array(
+			'alt'      => $args['alt'],
+			'loading'  => $args['loading'],
+			'decoding' => $args['decoding'],
+		);
+
+		if ( '' !== $args['class'] ) {
+			$attr['class'] = $args['class'];
+		}
+
+		return wp_get_attachment_image( $attachment_id, $size, false, $attr );
+	}
+
+	if ( ! is_string( $source ) || '' === $source ) {
+		return '';
+	}
+
+	$class = '' !== $args['class'] ? ' class="' . esc_attr( $args['class'] ) . '"' : '';
+
+	return sprintf(
+		'<img src="%1$s" alt="%2$s"%3$s loading="%4$s" decoding="%5$s" />',
+		esc_url( $source ),
+		esc_attr( $args['alt'] ),
+		$class,
+		esc_attr( $args['loading'] ),
+		esc_attr( $args['decoding'] )
+	);
+}
+
+/**
  * Get the URL of the full blog page (all posts in chronological order).
  *
  * Uses the Posts page when set in Settings > Reading, otherwise the site homepage.

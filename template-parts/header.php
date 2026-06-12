@@ -45,17 +45,29 @@ defined( 'ABSPATH' ) || exit;
                     <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="nav-pill__avatar-link" rel="home">
                         <?php if ( $profile_avatar ) : ?>
                             <div class="nav-pill__avatar">
-                                <img src="<?php echo esc_url( $profile_avatar ); ?>" alt="<?php echo esc_attr( $profile_name ); ?>">
+                                <?php
+                                echo mrmurphy_get_responsive_image(
+                                    $profile_avatar,
+                                    'mrmurphy-avatar-xs',
+                                    array(
+                                        'alt'     => $profile_name,
+                                        'loading' => 'eager',
+                                    )
+                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                ?>
                             </div>
                         <?php elseif ( has_custom_logo() ) : ?>
                             <div class="nav-pill__avatar">
                                 <?php
-                                $logo_id = get_theme_mod( 'custom_logo' );
-                                $logo = wp_get_attachment_image_src( $logo_id, 'full' );
-                                if ( $logo ) :
+                                echo mrmurphy_get_responsive_image(
+                                    (int) get_theme_mod( 'custom_logo' ),
+                                    'mrmurphy-avatar-xs',
+                                    array(
+                                        'alt'     => $profile_name,
+                                        'loading' => 'eager',
+                                    )
+                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                                 ?>
-                                    <img src="<?php echo esc_url( $logo[0] ); ?>" alt="<?php echo esc_attr( $profile_name ); ?>">
-                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </a>

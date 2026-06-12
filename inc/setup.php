@@ -31,6 +31,10 @@ function mrmurphy_setup() {
     add_image_size( 'mrmurphy-square-md', 240, 240, true );  // Displays at 120px
     add_image_size( 'mrmurphy-square-sm', 160, 160, true );  // Displays at 80px
 
+    // UI icons and avatars
+    add_image_size( 'mrmurphy-avatar-xs', 64, 64, true );   // Nav avatar (32px display)
+    add_image_size( 'mrmurphy-icon', 96, 96, true );        // Tool badges (48px display)
+
     // Register navigation menus
     register_nav_menus( array(
         'primary' => esc_html__( 'Primary Menu', 'mrmurphy' ),

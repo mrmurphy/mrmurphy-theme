@@ -29,7 +29,16 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
             <div class="profile-card">
                 <?php if ( $profile_avatar_display ) : ?>
                     <div class="profile-card__avatar">
-                        <img src="<?php echo esc_url( $profile_avatar_display ); ?>" alt="<?php echo esc_attr( $profile_name ); ?>">
+                        <?php
+                        echo mrmurphy_get_responsive_image(
+                            $profile_avatar_display,
+                            'mrmurphy-square-md',
+                            array(
+                                'alt'     => $profile_name,
+                                'loading' => 'eager',
+                            )
+                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                        ?>
                     </div>
                 <?php elseif ( function_exists( 'get_avatar_url' ) ) : ?>
                     <div class="profile-card__avatar">
@@ -141,7 +150,15 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
 
                         <?php if ( ! empty( $tool['icon'] ) ) : ?>
                             <div class="tool-badge__icon">
-                                <img src="<?php echo esc_url( $tool['icon'] ); ?>" alt="">
+                                <?php
+                                echo mrmurphy_get_responsive_image(
+                                    $tool['icon'],
+                                    'mrmurphy-icon',
+                                    array(
+                                        'alt' => $tool['name'],
+                                    )
+                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                ?>
                             </div>
                         <?php endif; ?>
 
@@ -201,7 +218,15 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
 
                         <?php if ( $project_icon ) : ?>
                             <div class="project-card__icon">
-                                <img src="<?php echo esc_url( $project_icon ); ?>" alt="">
+                                <?php
+                                echo mrmurphy_get_responsive_image(
+                                    $project_icon,
+                                    'mrmurphy-square-sm',
+                                    array(
+                                        'alt' => get_the_title(),
+                                    )
+                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                ?>
                             </div>
                         <?php elseif ( has_post_thumbnail() ) : ?>
                             <div class="project-card__icon">
