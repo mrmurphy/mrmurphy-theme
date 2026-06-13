@@ -68,7 +68,7 @@ if ( post_password_required() ) {
         'class_form'    => 'comment-form form',
         'class_submit'  => 'btn btn--primary',
         'title_reply'   => esc_html__( 'Leave a Comment', 'mrmurphy' ),
-        'comment_field' => '<p class="comment-form-comment form__group"><label for="comment" class="form__label">' . esc_html__( 'Comment', 'mrmurphy' ) . '</label><textarea id="comment" name="comment" class="form__textarea" cols="45" rows="8" maxlength="65525" required="required"></textarea></p>',
+        'comment_field' => '<p class="comment-form-comment form__group"><label for="comment" class="form__label">' . esc_html__( 'Comment', 'mrmurphy' ) . '</label><textarea id="comment" name="comment" class="form__textarea" cols="45" rows="6" maxlength="65525" required="required"></textarea></p>',
     ) );
     ?>
 

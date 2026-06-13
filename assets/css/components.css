@@ -486,6 +486,9 @@
 }
 
 .comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   max-width: 100%;
 }
 
@@ -493,9 +496,21 @@
   max-width: 100%;
 }
 
-/* WordPress default comment form fields */
-.comment-form p {
-  margin-bottom: var(--space-4);
+.comment-form:has(.logged-in-as) {
+  gap: var(--space-3);
+}
+
+.comment-form:has(.logged-in-as) .comment-form-actions {
+  gap: var(--space-3);
+}
+
+.comment-form > p,
+.comment-form > div {
+  margin: 0;
+}
+
+.comment-form p.form__group {
+  margin: 0;
 }
 
 .comment-form label {
@@ -516,63 +531,84 @@
   font-size: var(--font-size-xs);
 }
 
-/* Comment form fields layout */
-.comment-form {
+.comment-form-fields-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.comment-form-fields-row .form__group {
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .comment-form-fields-row {
+    flex-direction: row;
+  }
+
+  .comment-form-author,
+  .comment-form-url {
+    flex: 1;
+    width: auto;
+  }
+}
+
+.comment-form-actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-/* Submit button row - contains button and cookies checkbox */
-.comment-form-submit-row {
-  order: 10;
+.comment-form-subscriptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-raised-1);
+  border: var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.comment-form-subscriptions .comment-subscription-form {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.comment-form-subscriptions .comment-subscription-form input[type="checkbox"] {
+  width: auto;
+  margin: 0.2em 0 0;
+  flex-shrink: 0;
+}
+
+.comment-form-subscriptions .subscribe-label {
+  display: inline;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  cursor: pointer;
+}
+
+.comment-form-footer {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   flex-wrap: wrap;
-  margin-top: var(--space-4);
 }
 
-.comment-form-submit-row .form-submit {
-  margin-bottom: 0;
-}
-
-.comment-form-submit-row .comment-form-cookies-consent {
-  margin-bottom: 0;
-}
-
-/* Reorder fields visually: Email first */
-.comment-form-email {
-  order: 1;
-  width: 100%;
-}
-
-/* Container for Name and Website fields */
-.comment-form-fields-row {
-  order: 2;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  width: 100%;
-}
-
-.comment-form-author,
-.comment-form-url {
-  width: 100%;
-}
-
-/* Submit button and cookies consent - side by side at bottom */
-.comment-form .form-submit {
-  order: 10;
-  margin-bottom: 0;
-}
-
-.comment-form-cookies-consent {
-  order: 10;
-  margin-bottom: 0;
+.comment-form-submit-row {
   display: flex;
   align-items: center;
-  margin-left: var(--space-4);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.comment-form-submit-row .form-submit,
+.comment-form-submit-row .comment-form-cookies-consent {
+  margin: 0;
 }
 
 .comment-form-cookies-consent .form__label--checkbox {
@@ -581,6 +617,7 @@
   gap: var(--space-2);
   margin-bottom: 0;
   font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
   cursor: pointer;
 }
 
@@ -588,19 +625,6 @@
   width: auto;
   margin: 0;
   flex-shrink: 0;
-}
-
-@media (min-width: 640px) {
-  .comment-form-fields-row {
-    flex-direction: row;
-    gap: var(--space-4);
-  }
-  
-  .comment-form-author,
-  .comment-form-url {
-    flex: 1;
-    width: auto;
-  }
 }
 
 .comment-form input[type="text"],
@@ -638,7 +662,12 @@
 .comment-form .logged-in-as {
   font-size: var(--font-size-sm);
   color: var(--color-fg-muted);
-  margin-bottom: var(--space-4);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.comment-form .logged-in-as a {
+  color: var(--color-pink);
 }
 
 .comment-form .required-field-message {
