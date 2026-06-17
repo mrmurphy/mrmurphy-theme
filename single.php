@@ -11,8 +11,8 @@ get_template_part( 'template-parts/header' );
 <?php while ( have_posts() ) : the_post(); ?>
 
 <?php
-$is_microblog = mrmurphy_is_microblog();
-$has_title    = mrmurphy_post_has_title();
+$is_microblog = function_exists( 'wp_microblog_is' ) && wp_microblog_is();
+$has_title    = function_exists( 'wp_microblog_post_has_title' ) ? wp_microblog_post_has_title() : ( '' !== trim( (string) get_the_title() ) );
 $categories   = get_the_category();
 $display_categories = array();
 
@@ -20,7 +20,7 @@ if ( ! empty( $categories ) ) {
     $display_categories = array_filter(
         $categories,
         function ( $category ) use ( $is_microblog ) {
-            return ! $is_microblog || mrmurphy_microblog_category_slug() !== $category->slug;
+            return ! $is_microblog || wp_microblog_category_slug() !== $category->slug;
         }
     );
 }
@@ -44,7 +44,7 @@ $display_category = ! empty( $display_categories ) ? reset( $display_categories 
                 <div class="post-meta">
                     <?php if ( $is_microblog ) : ?>
                         <span class="post-meta__item post-meta__microblog-tag">
-                            <a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>">#microblog</a>
+                            <a href="<?php echo esc_url( wp_microblog_category_url() ); ?>">#microblog</a>
                         </span>
                     <?php endif; ?>
 
@@ -82,7 +82,7 @@ $display_category = ! empty( $display_categories ) ? reset( $display_categories 
             <div class="post-meta">
                 <?php if ( $is_microblog ) : ?>
                     <span class="post-meta__item post-meta__microblog-tag">
-                        <a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>">#microblog</a>
+                        <a href="<?php echo esc_url( wp_microblog_category_url() ); ?>">#microblog</a>
                     </span>
                 <?php endif; ?>
 

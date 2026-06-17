@@ -245,31 +245,7 @@ function mrmurphy_customize_register( $wp_customize ) {
         ) );
     }
 
-    // ========== Microblog Section ==========
-    $wp_customize->add_section( 'mrmurphy_microblog', array(
-        'title'       => __( 'Microblog', 'mrmurphy' ),
-        'panel'       => 'mrmurphy_panel',
-        'priority'    => 45,
-        'description' => __( 'Posts with no title and short content are auto-assigned to the Microblog category.', 'mrmurphy' ),
-    ) );
-
-    $wp_customize->add_setting( 'mrmurphy_microblog_char_limit', array(
-        'default'           => 280,
-        'sanitize_callback' => 'absint',
-    ) );
-
-    $wp_customize->add_control( 'mrmurphy_microblog_char_limit', array(
-        'type'        => 'number',
-        'label'       => __( 'Auto-microblog character limit', 'mrmurphy' ),
-        'section'     => 'mrmurphy_microblog',
-        'settings'    => 'mrmurphy_microblog_char_limit',
-        'input_attrs' => array(
-            'min'  => 80,
-            'max'  => 1000,
-            'step' => 10,
-        ),
-        'description' => __( 'Untitled posts at or below this length are categorized and tagged as microblog on save.', 'mrmurphy' ),
-    ) );
+    // ========== End Customizer sections ==========
 }
 add_action( 'customize_register', 'mrmurphy_customize_register' );
 

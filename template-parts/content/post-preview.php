@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$is_microblog = mrmurphy_is_microblog();
+$is_microblog = function_exists( 'wp_microblog_is' ) && wp_microblog_is();
 $permalink    = get_permalink();
 $preview_id   = 'post-preview-' . get_the_ID();
 $meta_class   = ! empty( $args['meta_class'] ) ? $args['meta_class'] : 'post-preview__meta';
@@ -41,7 +41,7 @@ $meta_class   = ! empty( $args['meta_class'] ) ? $args['meta_class'] : 'post-pre
 				<?php echo esc_html( get_the_date() ); ?>
 			</time>
 			<div class="post-preview__microblog-tag">
-				<a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>">#microblog</a>
+				<a href="<?php echo esc_url( wp_microblog_category_url() ); ?>">#microblog</a>
 			</div>
 		</footer>
 	<?php else : ?>

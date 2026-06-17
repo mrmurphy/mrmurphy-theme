@@ -33,8 +33,8 @@ require_once MRMURPHY_DIR . '/inc/customizer.php';
 // Template helper functions
 require_once MRMURPHY_DIR . '/inc/template-functions.php';
 
-// Microblog helpers and auto-assignment
-require_once MRMURPHY_DIR . '/inc/microblog.php';
+// Microblog preview cards and embed facades (presentation; behavior in wp-microblog plugin)
+require_once MRMURPHY_DIR . '/inc/microblog-preview.php';
 require_once MRMURPHY_DIR . '/inc/microblog-embeds.php';
 
 // Mega menu walker

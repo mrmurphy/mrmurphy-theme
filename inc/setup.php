@@ -169,3 +169,17 @@ function mrmurphy_ensure_blog_page() {
     }
 }
 add_action( 'after_switch_theme', 'mrmurphy_ensure_blog_page' );
+
+/**
+ * Notice when the wp-microblog plugin is not active.
+ */
+function mrmurphy_microblog_plugin_notice() {
+	if ( function_exists( 'wp_microblog_is' ) || ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	echo '<div class="notice notice-warning"><p>';
+	echo esc_html__( 'MrMurphy theme expects the WP Microblog plugin for microblog categorization and social sharing.', 'mrmurphy' );
+	echo '</p></div>';
+}
+add_action( 'admin_notices', 'mrmurphy_microblog_plugin_notice' );
