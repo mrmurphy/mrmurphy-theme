@@ -41,50 +41,52 @@ defined( 'ABSPATH' ) || exit;
             ?>
             <div class="nav-pill">
                 <div class="nav-pill__top">
-                    <!-- Left: Avatar -->
-                    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="nav-pill__avatar-link" rel="home">
-                        <?php if ( $profile_avatar ) : ?>
-                            <div class="nav-pill__avatar">
-                                <?php
-                                echo mrmurphy_get_responsive_image(
-                                    $profile_avatar,
-                                    'mrmurphy-avatar-xs',
-                                    array(
-                                        'alt'     => $profile_name,
-                                        'loading' => 'eager',
-                                    )
-                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                ?>
-                            </div>
-                        <?php elseif ( has_custom_logo() ) : ?>
-                            <div class="nav-pill__avatar">
-                                <?php
-                                echo mrmurphy_get_responsive_image(
-                                    (int) get_theme_mod( 'custom_logo' ),
-                                    'mrmurphy-avatar-xs',
-                                    array(
-                                        'alt'     => $profile_name,
-                                        'loading' => 'eager',
-                                    )
-                                ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                                ?>
-                            </div>
-                        <?php endif; ?>
-                    </a>
-
-                    <!-- Center: Name -->
-                    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="nav-pill__name" rel="home">
-                        <?php echo esc_html( $profile_name ); ?>
-                    </a>
-
-                    <!-- Right: Actions -->
-                    <div class="nav-pill__actions">
+                    <!-- Left: Avatar + Search -->
+                    <div class="nav-pill__left">
+                        <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="nav-pill__avatar-link" rel="home">
+                            <?php if ( $profile_avatar ) : ?>
+                                <div class="nav-pill__avatar">
+                                    <?php
+                                    echo mrmurphy_get_responsive_image(
+                                        $profile_avatar,
+                                        'mrmurphy-avatar-xs',
+                                        array(
+                                            'alt'     => $profile_name,
+                                            'loading' => 'eager',
+                                        )
+                                    ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    ?>
+                                </div>
+                            <?php elseif ( has_custom_logo() ) : ?>
+                                <div class="nav-pill__avatar">
+                                    <?php
+                                    echo mrmurphy_get_responsive_image(
+                                        (int) get_theme_mod( 'custom_logo' ),
+                                        'mrmurphy-avatar-xs',
+                                        array(
+                                            'alt'     => $profile_name,
+                                            'loading' => 'eager',
+                                        )
+                                    ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    ?>
+                                </div>
+                            <?php endif; ?>
+                        </a>
                         <button class="header-search__toggle" aria-label="<?php esc_attr_e( 'Search', 'mrmurphy' ); ?>" data-search-toggle>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <path d="m21 21-4.3-4.3"></path>
                             </svg>
                         </button>
+                    </div>
+
+                    <!-- Center: Name -->
+                    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="nav-pill__name" rel="home">
+                        <?php echo esc_html( $profile_name ); ?>
+                    </a>
+
+                    <!-- Right: Dark mode + Hamburger -->
+                    <div class="nav-pill__right">
                         <button class="theme-toggle" aria-label="<?php esc_attr_e( 'Toggle color scheme', 'mrmurphy' ); ?>" data-theme-toggle>
                             <svg class="theme-toggle__icon theme-toggle__icon--light" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="5"></circle>

@@ -1,4 +1,3 @@
-/* --- variables.css --- */
 /**
  * CSS Custom Properties
  * Monokai Pro color palette with light/dark mode support
@@ -213,8 +212,6 @@
   --border-muted: 1px solid rgba(0, 0, 0, 0.12);
   --border-focus: 2px solid var(--color-cyan);
 }
-
-/* --- base.css --- */
 /**
  * Base styles - Reset, typography, and foundational elements
  */
@@ -502,8 +499,6 @@ tr:hover td {
 :focus:not(:focus-visible) {
   outline: none;
 }
-
-/* --- layout.css --- */
 /**
  * Layout styles - Containers, grid, surfaces
  */
@@ -1487,8 +1482,6 @@ tr:hover td {
   line-height: var(--line-height-normal);
   text-wrap: wrap;
 }
-
-/* --- components.css --- */
 /**
  * Component styles - Cards, buttons, forms, etc.
  */
@@ -3323,8 +3316,6 @@ a:hover .featured-image--square,
       0 12px 32px rgba(0, 0, 0, 0.35);
   }
 }
-
-/* --- navigation.css --- */
 /**
  * Navigation styles - Header, menu, mega menu
  */
@@ -3372,10 +3363,10 @@ a:hover .featured-image--square,
 }
 
 .nav-pill__top {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-4);
   padding: var(--space-2);
   flex-shrink: 0;
 }
@@ -3383,8 +3374,24 @@ a:hover .featured-image--square,
 @media (min-width: 640px) {
   .nav-pill__top {
     padding: var(--space-2);
-    gap: var(--space-4);
+    gap: var(--space-6);
   }
+}
+
+.nav-pill__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.nav-pill__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .nav-pill:hover:not(.is-open) {
@@ -3393,7 +3400,7 @@ a:hover .featured-image--square,
 
 .nav-pill__avatar-link {
   flex-shrink: 0;
-  display: block;
+  display: flex;
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -3425,6 +3432,9 @@ a:hover .featured-image--square,
   color: var(--color-fg);
   text-decoration: none;
   transition: color var(--transition-fast);
+  text-align: center;
+  justify-self: center;
+  min-width: 0;
 }
 
 .nav-pill__name:hover {
@@ -3484,11 +3494,12 @@ a:hover .featured-image--square,
   color: var(--color-pink);
 }
 
-/* ===== NAV PILL ACTIONS ===== */
-.nav-pill__actions {
+/* ===== NAV PILL RIGHT ACTIONS ===== */
+.nav-pill__right {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  justify-content: flex-end;
 }
 
 .header-search__toggle {
@@ -4025,8 +4036,6 @@ a:hover .featured-image--square,
   width: 20px;
   height: 20px;
 }
-
-/* --- animations.css --- */
 /**
  * Animation styles - Micro-interactions, transitions, hover effects
  */
@@ -4240,8 +4249,6 @@ button:active {
     transition: none !important;
   }
 }
-
-/* --- color-cycle.css --- */
 /**
  * Color cycling — CSS replacement for color-cycle.js
  * Cycles Monokai Pro accent colors across section headers, nav, and tags.
@@ -4304,4 +4311,3 @@ button:active {
   :root:not([data-theme="light"]) .entry-footer .cat-links a:nth-child(6n+6)::after,
   :root:not([data-theme="light"]) .entry-footer .tag-links a:nth-child(6n+6)::after { background: rgba(171, 157, 242, 0.2); }
 }
-
