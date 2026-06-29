@@ -62,6 +62,10 @@
   padding-bottom: 48px;
 }
 
+.section--posts {
+  padding-top: 24px;
+}
+
 /* Sections without surface classes use base background */
 .section:not(.surface-inset):not(.surface-raised-1):not(.surface-raised-2) {
   background-color: var(--color-bg);
@@ -89,12 +93,11 @@
 }
 
 .section--projects .section__title,
-.section--posts .section__title,
 .section--tools .section__title,
 .section--work-experience .section__title,
 .section--contact .section__title,
 .section--newsletter .section__title {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
 }
 
 /* First header in each section should have no top margin */
@@ -420,14 +423,14 @@
 .post-preview {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(60px, 100px) 1fr;
+  grid-template-columns: 70px 1fr;
   grid-template-rows: auto auto;
   gap: var(--space-5);
   align-items: start;
   text-decoration: none;
   color: var(--color-fg);
   padding: var(--space-4);
-  margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) var(--space-3) calc(var(--space-4) * -1);
+  margin: 8px 0 var(--space-3) 0;
   background-color: var(--surface-inset);
   border-radius: var(--radius-lg);
   transition: background-color var(--transition-fast);
@@ -447,11 +450,6 @@
   outline-offset: 2px;
 }
 
-@media (min-width: 640px) {
-  .post-preview {
-    margin-bottom: var(--space-6);
-  }
-}
 
 /* When no image, content takes full width */
 .post-preview:not(:has(.post-preview__image)) {
@@ -483,7 +481,7 @@
 }
 
 .post-preview__title {
-  font-size: clamp(0.75rem, 6cqi, 1.875rem);
+  font-size: clamp(0.7rem, 4.8cqi, 1.2rem);
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;
   margin: 0 0 var(--space-2) 0;
@@ -503,21 +501,22 @@
   line-height: 1.6;
   color: var(--color-fg-muted);
   margin: 0;
-  text-wrap: wrap;
+  overflow-wrap: anywhere;
 }
 
-.posts-list .post-preview:last-child {
-  margin-bottom: calc(var(--space-4) * -1);
+/* Allow long URLs in microblog previews to wrap */
+.post-preview__body p.wp-block-paragraph {
+  overflow-wrap: anywhere;
 }
 
-/* Mobile: Smaller image */
-@media (max-width: 639px) {
-  .post-preview {
-    grid-template-columns: 70px 1fr;
-  }
+.posts-list .post-preview--microblog {
+  margin-top: 8px;
+}
 
-  .post-preview__title {
-    font-size: clamp(0.7rem, 4.8cqi, 1.2rem);
+
+@media (min-width: 640px) {
+  .posts-list .post-preview:last-child {
+    margin-bottom: -4px;
   }
 }
 
