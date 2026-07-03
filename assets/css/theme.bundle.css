@@ -4349,6 +4349,7 @@ button:active {
   box-shadow: 0 1px 0 rgba(45, 42, 46, 0.03), 0 8px 22px -16px rgba(45, 42, 46, 0.18);
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 10px;
 }
 
@@ -4507,9 +4508,9 @@ button:active {
 /* ===== ACTION ROW ===== */
 
 .mb-card__actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  justify-content: space-between;
   padding: 8px 2px 4px;
   margin-top: 2px;
   border-top: 1px solid rgba(45, 42, 46, 0.06);
@@ -4525,6 +4526,8 @@ button:active {
 .mb-action {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
   gap: 6px;
   padding: 7px 12px;
   border: 0;
@@ -4548,7 +4551,7 @@ button:active {
   outline-offset: 2px;
 }
 
-.mb-action-reblog:hover {
+.mb-action--reblog:hover {
   background: rgba(120, 220, 232, 0.12);
   color: var(--color-cyan, #78dce8);
 }
@@ -4557,12 +4560,19 @@ button:active {
   font-size: 1.05rem;
   line-height: 1;
   font-variant-emoji: text;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.mb-action--like .mb-action__icon,
-.mb-action--comment .mb-action__icon,
-.mb-action--reblog .mb-action__icon {
-  display: inline-block;
+.mb-action__icon svg {
+  width: 1.15em;
+  height: 1.15em;
+  fill: transparent;
+}
+
+.mb-action--liked .mb-action__icon svg {
+  fill: currentColor;
 }
 
 .mb-action__count {
@@ -4597,6 +4607,9 @@ button:active {
 /* ===== DIALOGS ===== */
 
 .mb-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
   border: 1px solid rgba(45, 42, 46, 0.10);
   border-radius: 18px;
   background: var(--color-surface-raised, #ffffff);
@@ -4604,12 +4617,44 @@ button:active {
   padding: 0;
   width: min(560px, calc(100vw - 32px));
   max-width: 100%;
+  max-height: calc(100vh - 32px);
   box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.4);
   font: inherit;
 }
 
+.mb-dialog[open] {
+  animation: mb-dialog-pop-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mb-dialog.mb-dialog--closing {
+  animation: mb-dialog-pop-out 0.18s ease-in forwards;
+  pointer-events: none;
+}
+
 .mb-dialog::backdrop {
   background: rgba(45, 42, 46, 0.55);
+}
+
+@keyframes mb-dialog-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes mb-dialog-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -4953,6 +4998,12 @@ button:active {
   color: #fff;
   flex: 0 0 auto;
   font-weight: 600;
+}
+
+.mb-dialog__icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .mb-dialog__platform {

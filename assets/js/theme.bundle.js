@@ -520,6 +520,15 @@
 		if (!dlg) return;
 		var slot = dlg.querySelector('[data-mb-dialog-content]');
 		if (slot) slot.innerHTML = html;
+
+		// Cancel any in-flight close animation before (re)opening.
+		dlg.classList.remove('mb-dialog--closing');
+		dlg.__mbClosing = false;
+		if (dlg.__mbCloseTimer) {
+			clearTimeout(dlg.__mbCloseTimer);
+			dlg.__mbCloseTimer = null;
+		}
+
 		if (typeof dlg.showModal === 'function') {
 			if (dlg.open) dlg.close();
 			dlg.showModal();
@@ -530,9 +539,29 @@
 
 	function closeDialog(id) {
 		var dlg = document.getElementById(id);
-		if (!dlg) return;
-		if (typeof dlg.close === 'function') dlg.close();
-		else dlg.removeAttribute('open');
+		if (!dlg || dlg.__mbClosing || !dlg.open) return;
+
+		dlg.__mbClosing = true;
+		dlg.classList.add('mb-dialog--closing');
+
+		var done = function () {
+			dlg.classList.remove('mb-dialog--closing');
+			if (typeof dlg.close === 'function') {
+				dlg.close();
+			} else {
+				dlg.removeAttribute('open');
+			}
+			dlg.__mbClosing = false;
+			dlg.removeEventListener('animationend', done);
+			if (dlg.__mbCloseTimer) {
+				clearTimeout(dlg.__mbCloseTimer);
+				dlg.__mbCloseTimer = null;
+			}
+		};
+
+		dlg.addEventListener('animationend', done);
+		// Fallback if the animation event does not fire.
+		dlg.__mbCloseTimer = setTimeout(done, 300);
 	}
 
 	function wireDialogCloseHandlers() {
@@ -541,11 +570,11 @@
 			if (!dlg || dlg.__mbWired) return;
 			dlg.__mbWired = true;
 			dlg.addEventListener('click', function (e) {
-				if (e.target === dlg) dlg.close();
+				if (e.target === dlg) closeDialog(id);
 			});
 			document.addEventListener('click', function (e) {
 				var closer = e.target.closest('[data-mb-dialog-close]');
-				if (closer && dlg.contains(closer)) dlg.close();
+				if (closer && dlg.contains(closer)) closeDialog(id);
 			});
 		});
 	}

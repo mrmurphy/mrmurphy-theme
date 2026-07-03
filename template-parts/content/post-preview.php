@@ -59,7 +59,7 @@ $mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_
 				aria-pressed="false"
 				aria-label="<?php esc_attr_e( 'Like this post', 'mrmurphy' ); ?>"
 			>
-				<span class="mb-action__icon" aria-hidden="true">♥</span>
+				<span class="mb-action__icon" aria-hidden="true"><?php echo mrmurphy_get_icon( 'heart' ); ?></span>
 				<span class="mb-action__count" data-mb-like-count><?php echo esc_html( (int) get_post_meta( get_the_ID(), '_mmb_like_count', true ) ); ?></span>
 			</button>
 
@@ -71,7 +71,7 @@ $mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_
 				aria-haspopup="dialog"
 				aria-label="<?php esc_attr_e( 'Comment on this post', 'mrmurphy' ); ?>"
 			>
-				<span class="mb-action__icon" aria-hidden="true">💬</span>
+				<span class="mb-action__icon" aria-hidden="true"><?php echo mrmurphy_get_icon( 'comment' ); ?></span>
 				<span class="mb-action__count" data-mb-comment-count><?php echo esc_html( get_comments_number( get_the_ID() ) ); ?></span>
 			</button>
 
@@ -83,7 +83,7 @@ $mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_
 				aria-haspopup="dialog"
 				aria-label="<?php esc_attr_e( 'Share this post', 'mrmurphy' ); ?>"
 			>
-				<span class="mb-action__icon" aria-hidden="true">🔁</span>
+				<span class="mb-action__icon" aria-hidden="true"><?php echo mrmurphy_get_icon( 'reblog' ); ?></span>
 			</button>
 		</footer>
 	<?php else : ?>

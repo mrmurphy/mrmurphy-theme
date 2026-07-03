@@ -33,6 +33,9 @@ require_once MRMURPHY_DIR . '/inc/customizer.php';
 // Template helper functions
 require_once MRMURPHY_DIR . '/inc/template-functions.php';
 
+// Inline SVG icon registry (used by microblog cards, share sheet, etc.)
+require_once MRMURPHY_DIR . '/inc/icons.php';
+
 // Microblog preview cards and embed facades (presentation; behavior in wp-microblog plugin)
 require_once MRMURPHY_DIR . '/inc/microblog-preview.php';
 require_once MRMURPHY_DIR . '/inc/microblog-embeds.php';

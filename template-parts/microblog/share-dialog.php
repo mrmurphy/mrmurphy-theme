@@ -79,7 +79,7 @@ $intent_rows = array(
 	array(
 		'platform' => __( 'Email', 'mrmurphy' ),
 		'url'      => 'mailto:?subject=' . $encoded_title . '&body=' . $encoded_url,
-		'icon'     => '✉',
+		'icon'     => 'email',
 		'icon_bg'  => '#727072',
 	),
 );
@@ -110,7 +110,12 @@ $mirrors = function_exists( 'mrmurphy_get_jetpack_publicize_mirrors' )
 	<?php foreach ( $intent_rows as $row ) : ?>
 		<li class="mb-dialog__row">
 			<a class="mb-dialog__link" href="<?php echo esc_url( $row['url'] ); ?>" target="_blank" rel="noopener noreferrer">
-				<span class="mb-dialog__icon" style="background:<?php echo esc_attr( $row['icon_bg'] ); ?>"><?php echo esc_html( $row['icon'] ); ?></span>
+				<span class="mb-dialog__icon" style="background:<?php echo esc_attr( $row['icon_bg'] ); ?>">
+					<?php
+					$icon_html = mrmurphy_get_icon( $row['icon'] );
+					echo '' !== $icon_html ? $icon_html : esc_html( $row['icon'] );
+					?>
+				</span>
 				<span class="mb-dialog__platform"><?php echo esc_html( $row['platform'] ); ?></span>
 				<span class="mb-dialog__arrow" aria-hidden="true">→</span>
 			</a>
@@ -118,7 +123,7 @@ $mirrors = function_exists( 'mrmurphy_get_jetpack_publicize_mirrors' )
 	<?php endforeach; ?>
 	<li class="mb-dialog__row">
 		<button type="button" class="mb-dialog__link" data-mb-copy-link data-permalink="<?php echo esc_url( $permalink ); ?>">
-			<span class="mb-dialog__icon" style="background:#727072">🔗</span>
+			<span class="mb-dialog__icon" style="background:#727072"><?php echo mrmurphy_get_icon( 'link' ); ?></span>
 			<span class="mb-dialog__platform"><?php esc_html_e( 'Copy link', 'mrmurphy' ); ?></span>
 			<span class="mb-dialog__arrow" data-mb-copy-status aria-hidden="true">→</span>
 		</button>
