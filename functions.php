@@ -40,6 +40,15 @@ require_once MRMURPHY_DIR . '/inc/microblog-embeds.php';
 // Mega menu walker
 require_once MRMURPHY_DIR . '/inc/mega-menu-walker.php';
 
+// Microblog card likes (REST controller + storage)
+require_once MRMURPHY_DIR . '/inc/likes.php';
+
+// Jetpack Publicize mirror-link helper for the reblog dialog
+require_once MRMURPHY_DIR . '/inc/jetpack-mirrors.php';
+
+// Microblog card dialogs (Comment / Reblog) — footer shells
+require_once MRMURPHY_DIR . '/inc/microblog-dialogs.php';
+
 // AI Authorship
 require_once MRMURPHY_DIR . '/inc/ai-authorship.php';
 

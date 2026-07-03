@@ -29,6 +29,15 @@ function mrmurphy_scripts() {
 		true
 	);
 
+	wp_localize_script(
+		'mrmurphy-theme',
+		'mrmurphyMicroblog',
+		array(
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+			'root'  => esc_url_raw( rest_url( 'mrmurphy/v1' ) ),
+		)
+	);
+
 	if ( is_singular( 'post' ) ) {
 		wp_enqueue_style(
 			'mrmurphy-authorship',

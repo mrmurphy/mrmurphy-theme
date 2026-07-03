@@ -13,12 +13,14 @@ CSS_SOURCES=(
   "${ASSETS}/css/navigation.css"
   "${ASSETS}/css/animations.css"
   "${ASSETS}/css/color-cycle.css"
+  "${ASSETS}/css/microblog-actions.css"
 )
 
 JS_SOURCES=(
   "${ASSETS}/js/navigation.js"
   "${ASSETS}/js/theme-toggle.js"
   "${ASSETS}/js/embed-facade.js"
+  "${ASSETS}/js/microblog-actions.js"
 )
 
 CSS_OUT="${ASSETS}/css/theme.bundle.css"

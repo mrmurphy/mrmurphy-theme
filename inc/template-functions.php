@@ -8,6 +8,65 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Relative time for a post (e.g. "2h", "3d", "Aug 5").
+ *
+ * @param int|null $post_id Post ID. Defaults to current post.
+ * @return string
+ */
+function mrmurphy_relative_time( $post_id = null ) {
+	if ( ! $post_id ) {
+		$post_id = get_the_ID();
+	}
+	if ( ! $post_id ) {
+		return '';
+	}
+
+	$timestamp = get_post_time( 'U', false, $post_id, false );
+	$diff      = current_time( 'U' ) - $timestamp;
+
+	if ( $diff < 60 ) {
+		return __( 'now', 'mrmurphy' );
+	}
+	if ( $diff < HOUR_IN_SECONDS ) {
+		return ceil( $diff / 60 ) . 'm';
+	}
+	if ( $diff < DAY_IN_SECONDS ) {
+		return ceil( $diff / HOUR_IN_SECONDS ) . 'h';
+	}
+	if ( $diff < WEEK_IN_SECONDS ) {
+		return ceil( $diff / DAY_IN_SECONDS ) . 'd';
+	}
+	return gmdate( 'M j', $timestamp );
+}
+
+/**
+ * Author handle for a post: prefers the author's user_nicename, falls back
+ * to the site slug-derived handle.
+ *
+ * @param int|null $post_id Post ID. Defaults to current post.
+ * @return string
+ */
+function mrmurphy_author_handle( $post_id = null ) {
+	if ( ! $post_id ) {
+		$post_id = get_the_ID();
+	}
+	if ( ! $post_id ) {
+		return '';
+	}
+
+	$author_id = (int) get_post_field( 'post_author', $post_id );
+	$user      = get_userdata( $author_id );
+
+	if ( $user && ! empty( $user->user_nicename ) ) {
+		return $user->user_nicename;
+	}
+
+	$host = wp_parse_url( home_url(), PHP_URL_HOST );
+	$slug = $host ? preg_replace( '/^www\./', '', $host ) : 'site';
+	return sanitize_title( $slug );
+}
+
+/**
  * Normalize a media URL for attachment lookup.
  *
  * Strips CDN/Photon hosts, query args, and generated -WxH suffixes.

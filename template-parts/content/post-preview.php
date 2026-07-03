@@ -7,42 +7,84 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$is_microblog = function_exists( 'wp_microblog_is' ) && wp_microblog_is();
+$is_microblog = function_exists( 'wp_microblog_is' )
+	? wp_microblog_is()
+	: ( function_exists( 'mrmurphy_is_microblog' ) ? mrmurphy_is_microblog() : false );
 $permalink    = get_permalink();
 $preview_id   = 'post-preview-' . get_the_ID();
 $meta_class   = ! empty( $args['meta_class'] ) ? $args['meta_class'] : 'post-preview__meta';
 ?>
 
+<?php
+$mb_classes = $is_microblog ? 'post-preview post-preview--microblog mb-card' : 'post-preview';
+$mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_the_ID() . '"' : '';
+?>
 <article
 	id="post-<?php the_ID(); ?>"
-	<?php post_class( $is_microblog ? 'post-preview post-preview--microblog' : 'post-preview' ); ?>
+	<?php post_class( $mb_classes ); ?>
+	<?php echo $mb_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 >
 	<?php if ( $is_microblog ) : ?>
-		<a
-			class="post-preview__stretched-link"
-			href="<?php echo esc_url( $permalink ); ?>"
-			aria-labelledby="<?php echo esc_attr( $preview_id ); ?>"
-		>
-			<span class="screen-reader-text"><?php esc_html_e( 'Read microblog post', 'mrmurphy' ); ?></span>
-		</a>
+		<div class="mb-card__head">
+			<a class="mb-card__avatar" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" aria-hidden="true" tabindex="-1">
+				<?php echo get_avatar( get_the_author_meta( 'ID' ), 36 ); ?>
+			</a>
+			<div class="mb-card__who">
+				<a class="mb-card__name" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>">
+					<?php echo esc_html( get_the_author_meta( 'display_name' ) ); ?>
+				</a>
+				<span class="mb-card__handle-line">
+					<a class="mb-card__handle" href="<?php echo esc_url( $permalink ); ?>">@<?php echo esc_html( mrmurphy_author_handle() ); ?></a>
+					<span class="mb-card__time"> · <?php echo esc_html( mrmurphy_relative_time() ); ?></span>
+				</span>
+			</div>
+		</div>
 
 		<?php if ( has_post_thumbnail() ) : ?>
-			<div class="post-preview__image featured-image--square" aria-hidden="true">
+			<a class="mb-card__image featured-image--square" href="<?php echo esc_url( $permalink ); ?>" aria-hidden="true" tabindex="-1">
 				<?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
-			</div>
+			</a>
 		<?php endif; ?>
 
-		<div id="<?php echo esc_attr( $preview_id ); ?>" class="post-preview__body">
+		<div id="<?php echo esc_attr( $preview_id ); ?>" class="mb-card__body">
 			<?php echo mrmurphy_get_microblog_preview_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 
-		<footer class="post-preview__footer">
-			<time class="post-preview__date" datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
-				<?php echo esc_html( get_the_date() ); ?>
-			</time>
-			<div class="post-preview__microblog-tag">
-				<a href="<?php echo esc_url( wp_microblog_category_url() ); ?>">#microblog</a>
-			</div>
+		<footer class="mb-card__actions">
+			<button
+				type="button"
+				class="mb-action mb-action--like"
+				data-mb-like
+				data-post-id="<?php the_ID(); ?>"
+				aria-pressed="false"
+				aria-label="<?php esc_attr_e( 'Like this post', 'mrmurphy' ); ?>"
+			>
+				<span class="mb-action__icon" aria-hidden="true">♥</span>
+				<span class="mb-action__count" data-mb-like-count><?php echo esc_html( (int) get_post_meta( get_the_ID(), '_mmb_like_count', true ) ); ?></span>
+			</button>
+
+			<button
+				type="button"
+				class="mb-action mb-action--comment"
+				data-mb-comment
+				data-post-id="<?php the_ID(); ?>"
+				aria-haspopup="dialog"
+				aria-label="<?php esc_attr_e( 'Comment on this post', 'mrmurphy' ); ?>"
+			>
+				<span class="mb-action__icon" aria-hidden="true">💬</span>
+				<span class="mb-action__count" data-mb-comment-count><?php echo esc_html( get_comments_number( get_the_ID() ) ); ?></span>
+			</button>
+
+			<button
+				type="button"
+				class="mb-action mb-action--reblog"
+				data-mb-reblog
+				data-post-id="<?php the_ID(); ?>"
+				aria-haspopup="dialog"
+				aria-label="<?php esc_attr_e( 'Share this post', 'mrmurphy' ); ?>"
+			>
+				<span class="mb-action__icon" aria-hidden="true">🔁</span>
+			</button>
 		</footer>
 	<?php else : ?>
 		<a
