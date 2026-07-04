@@ -1,11 +1,9 @@
 <?php
 /**
- * Comment dialog form for microblog cards.
+ * Comment dialog content for microblog cards.
  *
- * Rendered server-side and injected into the shared comment `<dialog>` when a
- * card's Comment button is clicked. Echoes the form fields appropriate to the
- * current viewer's logged-in state plus the existing comments for the post
- * being viewed.
+ * Post-specific header, body, and comments stub. The comment form is
+ * pre-rendered in the dialog shell itself and does not need to be fetched.
  *
  * Expected $args keys:
  *   - post_id (int)  Required. ID of the post this dialog is bound to.
@@ -45,11 +43,8 @@ if ( $post ) :
 	<div class="mb-dialog__body">
 		<?php echo wp_kses_post( wpautop( get_post_field( 'post_content', $post_id ) ) ); ?>
 	</div>
-	<?php
-endif;
+<?php endif; ?>
 
-$current_count = (int) get_comments_number( $post_id );
-?>
 <div class="mb-dialog__comments" data-mb-comment-list data-post-id="<?php echo esc_attr( $post_id ); ?>">
 	<div class="mb-dialog__comments-loading" role="status"><?php esc_html_e( 'Loading comments…', 'mrmurphy' ); ?></div>
 	<template data-mb-comment-template>
@@ -60,58 +55,3 @@ $current_count = (int) get_comments_number( $post_id );
 		</div>
 	</template>
 </div>
-
-<form
-	class="mb-dialog__form"
-	data-mb-comment-form
-	data-post-id="<?php echo esc_attr( $post_id ); ?>"
->
-	<?php
-	if ( is_user_logged_in() ) :
-		$current_user = wp_get_current_user();
-		?>
-		<div class="mb-dialog__form-as">
-			<span class="mb-dialog__form-avatar"><?php echo get_avatar( $current_user->ID, 24 ); ?></span>
-			<span class="mb-dialog__form-name"><?php echo esc_html( $current_user->display_name ); ?></span>
-		</div>
-		<textarea
-			class="mb-dialog__textarea"
-			name="content"
-			rows="3"
-			placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>"
-			required></textarea>
-
-		<input type="hidden" name="author_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" />
-		<input type="hidden" name="author_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
-	<?php else : ?>
-		<textarea
-			class="mb-dialog__textarea"
-			name="content"
-			rows="3"
-			placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>"
-			required></textarea>
-
-		<div class="mb-dialog__row" data-mb-comment-author-row>
-			<div class="mb-dialog__field">
-				<label class="mb-dialog__label" for="mb-comment-name-<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'Name', 'mrmurphy' ); ?></label>
-				<input id="mb-comment-name-<?php echo esc_attr( $post_id ); ?>" class="mb-dialog__input" name="author_name" type="text" autocomplete="name" required />
-			</div>
-			<div class="mb-dialog__field">
-				<label class="mb-dialog__label" for="mb-comment-email-<?php echo esc_attr( $post_id ); ?>"><?php esc_html_e( 'Email', 'mrmurphy' ); ?></label>
-				<input id="mb-comment-email-<?php echo esc_attr( $post_id ); ?>" class="mb-dialog__input" name="author_email" type="email" autocomplete="email" required />
-			</div>
-		</div>
-
-		<label class="mb-dialog__cookies">
-			<input type="checkbox" name="wp-comment-cookies-consent" value="yes" />
-			<span><?php esc_html_e( 'Save my name &amp; email for next time', 'mrmurphy' ); ?></span>
-		</label>
-	<?php endif; ?>
-
-	<input type="text" name="mmb_hp" class="mb-dialog__honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-	<div class="mb-dialog__form-actions">
-		<span class="mb-dialog__form-error" data-mb-comment-error role="alert"></span>
-		<button type="submit" class="mb-dialog__submit"><?php esc_html_e( 'Post comment', 'mrmurphy' ); ?></button>
-	</div>
-</form>

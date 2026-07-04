@@ -16,8 +16,11 @@ $meta_class   = ! empty( $args['meta_class'] ) ? $args['meta_class'] : 'post-pre
 ?>
 
 <?php
-$mb_classes = $is_microblog ? 'post-preview post-preview--microblog mb-card' : 'post-preview';
-$mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_the_ID() . '"' : '';
+$author_url  = esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) );
+$mb_classes  = $is_microblog ? 'post-preview post-preview--microblog mb-card' : 'post-preview';
+$mb_attrs    = $is_microblog
+	? ' data-microblog-card data-post-id="' . (int) get_the_ID() . '" data-author-url="' . $author_url . '"'
+	: '';
 ?>
 <article
 	id="post-<?php the_ID(); ?>"

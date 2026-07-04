@@ -580,23 +580,91 @@
 	}
 
 	function fetchDialog(route, postId, openId) {
+		openDialog(openId, '<p class="mb-dialog__loading" role="status">Loading…</p>');
+
 		fetch(ROOT + route + '?post_id=' + encodeURIComponent(postId), {
 			credentials: 'same-origin',
 			headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' }
 		}).then(function (r) { return r.json(); }).then(function (data) {
 			openDialog(openId, data.html || '');
 		}).catch(function () {
-			openDialog(openId, '<p class="mb-dialog__error">Couldn’t load this post. Please try again.</p>');
+			openDialog(openId, '<p class="mb-dialog__error">Couldn\'t load this post. Please try again.</p>');
 		});
 	}
 
 	/* ---------- Comment ---------- */
 
+	function escHtml(str) {
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function escAttr(str) {
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+	}
+
+	function buildCommentDialogHtml(card) {
+		var authorUrl = card.getAttribute('data-author-url') || '';
+		var linkEl = card.querySelector('.mb-card__link');
+		var permalink = linkEl ? linkEl.getAttribute('href') : '';
+		var avatarEl = card.querySelector('.mb-card__avatar img');
+		var avatarSrc = avatarEl ? avatarEl.getAttribute('src') : '';
+		var name = card.querySelector('.mb-card__name').textContent || '';
+		var handle = card.querySelector('.mb-card__handle').textContent || '';
+		var rawTime = card.querySelector('.mb-card__time').textContent || '';
+		var time = rawTime.replace(/^[\s·\s]*/, '');
+		var bodyEl = card.querySelector('.mb-card__body');
+		var body = bodyEl ? bodyEl.innerHTML : '';
+
+		var html = '';
+		html += '<div class="mb-dialog__head">';
+		html += '<a class="mb-dialog__avatar" href="' + escAttr(authorUrl) + '" aria-hidden="true" tabindex="-1">';
+		html += '<img src="' + escAttr(avatarSrc) + '" alt="" width="28" height="28" />';
+		html += '</a>';
+		html += '<div class="mb-dialog__who">';
+		html += '<a class="mb-dialog__name" href="' + escAttr(authorUrl) + '">' + escHtml(name) + '</a>';
+		html += '<span class="mb-dialog__handle-line">';
+		html += '<a class="mb-dialog__handle" href="' + escAttr(permalink) + '">' + escHtml(handle) + '</a>';
+		html += '<span class="mb-dialog__time">' + escHtml(time) + '</span>';
+		html += '</span>';
+		html += '</div>';
+		html += '<button type="button" class="mb-dialog__close" data-mb-dialog-close aria-label="Close comment dialog">\u00d7</button>';
+		html += '</div>';
+		html += '<div class="mb-dialog__body">' + body + '</div>';
+		return html;
+	}
+
 	function bindCommentButton(btn) {
 		btn.addEventListener('click', function () {
 			var postId = parseInt(btn.getAttribute('data-post-id'), 10);
 			if (!postId) return;
-			fetchDialog('/dialog/comment', postId, 'mmb-comment-dialog');
+			var card = btn.closest('[data-microblog-card]');
+			if (!card) return;
+
+			var form = document.querySelector('[data-mb-comment-form]');
+			if (form) form.setAttribute('data-post-id', String(postId));
+
+			var html = buildCommentDialogHtml(card);
+			html += '<div class="mb-dialog__comments" data-mb-comment-list data-post-id="' + postId + '">';
+			html += '<div class="mb-dialog__comments-loading" role="status">Loading comments\u2026</div>';
+			html += '<template data-mb-comment-template>';
+			html += '<div class="mb-comment">';
+			html += '<span class="mb-comment__author"></span>';
+			html += '<span class="mb-comment__time"></span>';
+			html += '<p class="mb-comment__text"></p>';
+			html += '</div>';
+			html += '</template>';
+			html += '</div>';
+
+			openDialog('mmb-comment-dialog', html);
 		});
 	}
 
@@ -709,11 +777,72 @@
 
 	/* ---------- Reblog ---------- */
 
+	function buildShareDialogHtml(card) {
+		var linkEl = card.querySelector('.mb-card__link');
+		var permalink = linkEl ? linkEl.getAttribute('href') : '';
+		var bodyEl = card.querySelector('.mb-card__body');
+		var title = bodyEl ? bodyEl.textContent.trim().slice(0, 100) : document.title;
+
+		var encodedUrl = encodeURIComponent(permalink);
+		var encodedTitle = encodeURIComponent(title);
+
+		var platforms = [
+			{ name: 'Mastodon', url: 'https://toot.kytta.dev/?text=' + encodedTitle + '&url=' + encodedUrl, icon: 'M', bg: '#6364ff' },
+			{ name: 'Bluesky', url: 'https://bsky.app/intent/compose?text=' + encodedTitle + '%20' + encodedUrl, icon: 'B', bg: '#1185fe' },
+			{ name: 'X (Twitter)', url: 'https://twitter.com/intent/tweet?text=' + encodedTitle + '&url=' + encodedUrl, icon: 'X', bg: '#000000' },
+			{ name: 'Threads', url: 'https://www.threads.net/intent?post_text=' + encodedTitle + '%20' + encodedUrl, icon: 'T', bg: '#000000' },
+			{ name: 'LinkedIn', url: 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodedUrl, icon: 'in', bg: '#0a66c2' },
+			{ name: 'WhatsApp', url: 'https://wa.me/?text=' + encodedTitle + '%20' + encodedUrl, icon: 'W', bg: '#25d366' },
+			{ name: 'Email', url: 'mailto:?subject=' + encodedTitle + '&body=' + encodedUrl, icon: '\u2709', bg: '#727072' },
+		];
+
+		var html = '';
+		html += '<div class="mb-dialog__share-top">';
+		html += '<button type="button" class="mb-dialog__close" data-mb-dialog-close aria-label="Close share dialog">\u00d7</button>';
+		html += '</div>';
+		html += '<p class="mb-dialog__intro">Pick the platform where you\u2019d like to reshare this post, and follow the link to do it there.</p>';
+		html += '<ul class="mb-dialog__list">';
+		for (var i = 0; i < platforms.length; i++) {
+			var p = platforms[i];
+			html += '<li class="mb-dialog__row">';
+			html += '<a class="mb-dialog__link" href="' + escAttr(p.url) + '" target="_blank" rel="noopener noreferrer">';
+			html += '<span class="mb-dialog__icon" style="background:' + p.bg + '">' + escHtml(p.icon) + '</span>';
+			html += '<span class="mb-dialog__platform">' + escHtml(p.name) + '</span>';
+			html += '<span class="mb-dialog__arrow" aria-hidden="true">\u2192</span>';
+			html += '</a>';
+			html += '</li>';
+		}
+		html += '<li class="mb-dialog__row">';
+		html += '<button type="button" class="mb-dialog__link" data-mb-copy-link data-permalink="' + escAttr(permalink) + '">';
+		html += '<span class="mb-dialog__icon" style="background:#727072">link</span>';
+		html += '<span class="mb-dialog__platform">Copy link</span>';
+		html += '<span class="mb-dialog__arrow" data-mb-copy-status aria-hidden="true">\u2192</span>';
+		html += '</button>';
+		html += '</li>';
+		html += '</ul>';
+		html += '<div data-mb-share-mirrors><p class="mb-dialog__mirror-loading">Checking for cross-posts\u2026</p></div>';
+		return html;
+	}
+
 	function bindReblogButton(btn) {
 		btn.addEventListener('click', function () {
 			var postId = parseInt(btn.getAttribute('data-post-id'), 10);
 			if (!postId) return;
-			fetchDialog('/dialog/share', postId, 'mmb-share-dialog');
+			var card = btn.closest('[data-microblog-card]');
+			if (!card) return;
+
+			openDialog('mmb-share-dialog', buildShareDialogHtml(card));
+
+			fetch(ROOT + '/dialog/share-mirrors?post_id=' + encodeURIComponent(postId), {
+				credentials: 'same-origin',
+				headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' }
+			}).then(function (r) { return r.json(); }).then(function (data) {
+				var slot = document.querySelector('#mmb-share-dialog [data-mb-share-mirrors]');
+				if (slot) slot.innerHTML = data.html || '';
+			}).catch(function () {
+				var slot = document.querySelector('#mmb-share-dialog [data-mb-share-mirrors]');
+				if (slot) slot.innerHTML = '';
+			});
 		});
 	}
 
@@ -758,15 +887,12 @@
 		hydrateLikes(cards, clientId);
 		wireDialogCloseHandlers();
 		bindDynamicShareHandlers();
+		bindDynamicCommentHandlers(document);
 
 		// Wire form/comment-list handlers after dialog content is injected.
-		var observer = new MutationObserver(function (mutations) {
-			mutations.forEach(function (m) {
-				m.addedNodes.forEach(function (node) {
-					if (node.nodeType !== 1) return;
-					bindDynamicCommentHandlers(node);
-				});
-			});
+		var observer = new MutationObserver(function () {
+			var slot = document.querySelector('[data-mb-dialog-content]');
+			if (slot) bindDynamicCommentHandlers(slot);
 		});
 		['mmb-comment-dialog', 'mmb-share-dialog'].forEach(function (id) {
 			var dlg = document.getElementById(id);

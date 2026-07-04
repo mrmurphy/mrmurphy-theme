@@ -51,6 +51,23 @@ function mrmurphy_microblog_dialog_routes() {
 
 	register_rest_route(
 		'mrmurphy/v1',
+		'/dialog/share-mirrors',
+		array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => 'mrmurphy_microblog_share_mirrors_response',
+			'permission_callback' => '__return_true',
+			'args'                => array(
+				'post_id' => array(
+					'type'              => 'integer',
+					'required'          => true,
+					'sanitize_callback' => 'absint',
+				),
+			),
+		)
+	);
+
+	register_rest_route(
+		'mrmurphy/v1',
 		'/comments',
 		array(
 			'methods'             => WP_REST_Server::READABLE,
@@ -145,6 +162,47 @@ function mrmurphy_microblog_share_dialog_response( WP_REST_Request $request ) {
 	return new WP_REST_Response( array(
 		'html' => mrmurphy_microblog_share_dialog_html( $post_id ),
 	) );
+}
+
+/**
+ * REST: GET /mrmurphy/v1/dialog/share-mirrors?post_id=...
+ *
+ * Returns only the Jetpack Publicize mirror links HTML (empty string if none).
+ * Lightweight — just the mirrors lookup, no full dialog render.
+ */
+function mrmurphy_microblog_share_mirrors_response( WP_REST_Request $request ) {
+	$post_id = absint( $request->get_param( 'post_id' ) );
+	$post    = get_post( $post_id );
+	if ( ! $post || 'publish' !== $post->post_status ) {
+		return new WP_Error( 'mmb_no_post', __( 'Post not found.', 'mrmurphy' ), array( 'status' => 404 ) );
+	}
+
+	$mirrors = function_exists( 'mrmurphy_get_jetpack_publicize_mirrors' )
+		? mrmurphy_get_jetpack_publicize_mirrors( $post_id )
+		: array();
+
+	$html = '';
+	if ( ! empty( $mirrors ) ) {
+		ob_start();
+		?>
+		<div class="mb-dialog__sep" role="separator"></div>
+		<p class="mb-dialog__mirror-label"><?php esc_html_e( 'Also published on (via Jetpack)', 'mrmurphy' ); ?></p>
+		<ul class="mb-dialog__list">
+			<?php foreach ( $mirrors as $m ) : ?>
+				<li class="mb-dialog__row mb-dialog__row--mirror">
+					<a class="mb-dialog__link" href="<?php echo esc_url( $m['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+						<span class="mb-dialog__mirror-pill"><?php echo esc_html( $m['platform'] ); ?></span>
+						<span class="mb-dialog__platform"><?php esc_html_e( 'View this post on', 'mrmurphy' ); ?> <?php echo esc_html( $m['platform'] ); ?></span>
+						<span class="mb-dialog__arrow" aria-hidden="true">→</span>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+		$html = (string) ob_get_clean();
+	}
+
+	return new WP_REST_Response( array( 'html' => $html ) );
 }
 
 /**
@@ -256,18 +314,56 @@ function mrmurphy_microblog_comment_submit( WP_REST_Request $request ) {
 }
 
 /**
- * Echo the two empty `<dialog>` shells.
+ * Echo the two `<dialog>` shells.
+ *
+ * The comment dialog shell includes the form markup directly (logged-in vs.
+ * logged-out variant) so the form is always present. Only the post-specific
+ * header, body, and comments are fetched async.
  */
 function mrmurphy_render_microblog_dialogs() {
-	// Only emit when the page actually contains microblog cards. Mirrors the
-	// contexts where post-preview.php renders the microblog branch.
 	if ( ! ( is_home() || is_archive() || is_singular( 'post' ) || is_front_page() ) ) {
 		return;
 	}
 
 	?>
 	<dialog id="mmb-comment-dialog" class="mb-dialog" aria-labelledby="mmb-comment-dialog-title">
-		<div class="mb-dialog__inner" data-mb-dialog-content></div>
+		<div class="mb-dialog__inner">
+			<div data-mb-dialog-content></div>
+
+			<form class="mb-dialog__form" data-mb-comment-form data-post-id="">
+				<?php if ( is_user_logged_in() ) :
+					$current_user = wp_get_current_user(); ?>
+					<div class="mb-dialog__form-as">
+						<span class="mb-dialog__form-avatar"><?php echo get_avatar( $current_user->ID, 24 ); ?></span>
+						<span class="mb-dialog__form-name"><?php echo esc_html( $current_user->display_name ); ?></span>
+					</div>
+					<textarea class="mb-dialog__textarea" name="content" rows="3" placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>" required></textarea>
+					<input type="hidden" name="author_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" />
+					<input type="hidden" name="author_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
+				<?php else : ?>
+					<textarea class="mb-dialog__textarea" name="content" rows="3" placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>" required></textarea>
+					<div class="mb-dialog__row" data-mb-comment-author-row>
+						<div class="mb-dialog__field">
+							<label class="mb-dialog__label" for="mb-comment-name"><?php esc_html_e( 'Name', 'mrmurphy' ); ?></label>
+							<input id="mb-comment-name" class="mb-dialog__input" name="author_name" type="text" autocomplete="name" required />
+						</div>
+						<div class="mb-dialog__field">
+							<label class="mb-dialog__label" for="mb-comment-email"><?php esc_html_e( 'Email', 'mrmurphy' ); ?></label>
+							<input id="mb-comment-email" class="mb-dialog__input" name="author_email" type="email" autocomplete="email" required />
+						</div>
+					</div>
+					<label class="mb-dialog__cookies">
+						<input type="checkbox" name="wp-comment-cookies-consent" value="yes" />
+						<span><?php esc_html_e( 'Save my name &amp; email for next time', 'mrmurphy' ); ?></span>
+					</label>
+				<?php endif; ?>
+				<input type="text" name="mmb_hp" class="mb-dialog__honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+				<div class="mb-dialog__form-actions">
+					<span class="mb-dialog__form-error" data-mb-comment-error role="alert"></span>
+					<button type="submit" class="mb-dialog__submit"><?php esc_html_e( 'Post comment', 'mrmurphy' ); ?></button>
+				</div>
+			</form>
+		</div>
 	</dialog>
 
 	<dialog id="mmb-share-dialog" class="mb-dialog" aria-labelledby="mmb-share-dialog-title">
