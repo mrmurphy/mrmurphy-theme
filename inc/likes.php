@@ -90,6 +90,20 @@ add_action( 'after_switch_theme', 'mrmurphy_likes_create_table' );
 add_action( 'admin_init', 'mrmurphy_likes_create_table' );
 
 /**
+ * Ensure the likes table exists before any REST read or write.
+ *
+ * Uses a daily transient to avoid calling dbDelta on every request.
+ */
+function mrmurphy_likes_ensure_table() {
+	if ( get_transient( 'mmb_likes_table_ready' ) ) {
+		return;
+	}
+	mrmurphy_likes_create_table();
+	set_transient( 'mmb_likes_table_ready', 1, DAY_IN_SECONDS );
+}
+add_action( 'rest_api_init', 'mrmurphy_likes_ensure_table' );
+
+/**
  * Resolve the like identifier for the current request.
  *
  * Logged-in users get `user:<id>` so their likes follow them across devices.
@@ -174,7 +188,7 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 	$has = mrmurphy_has_liked( $post_id, $identifier );
 
 	if ( 'like' === $action && ! $has ) {
-		$wpdb->insert(
+		$result = $wpdb->insert(
 			$table,
 			array(
 				'post_id'    => $post_id,
@@ -183,9 +197,14 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 			),
 			array( '%d', '%s', '%s' )
 		);
-		mrmurphy_likes_recount( $post_id );
+
+		if ( false === $result ) {
+			error_log( 'MrMurphy Likes: insert failed for post ' . $post_id . ' — ' . $wpdb->last_error );
+		} else {
+			mrmurphy_likes_recount( $post_id );
+		}
 	} elseif ( 'unlike' === $action && $has ) {
-		$wpdb->delete(
+		$result = $wpdb->delete(
 			$table,
 			array(
 				'post_id'    => $post_id,
@@ -193,7 +212,12 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 			),
 			array( '%d', '%s' )
 		);
-		mrmurphy_likes_recount( $post_id );
+
+		if ( false === $result ) {
+			error_log( 'MrMurphy Likes: delete failed for post ' . $post_id . ' — ' . $wpdb->last_error );
+		} else {
+			mrmurphy_likes_recount( $post_id );
+		}
 	}
 
 	return array(
