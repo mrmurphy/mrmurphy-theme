@@ -12,6 +12,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
+define( 'MRMURPHY_LIKES_DB_VERSION', '1.0' );
+
 /**
  * Register REST routes for the mrmurphy/v1 likes controller.
  */
@@ -87,21 +89,23 @@ function mrmurphy_likes_create_table() {
 	dbDelta( $sql );
 }
 add_action( 'after_switch_theme', 'mrmurphy_likes_create_table' );
-add_action( 'admin_init', 'mrmurphy_likes_create_table' );
 
 /**
- * Ensure the likes table exists before any REST read or write.
+ * Check if the likes table schema is up to date and create/upgrade if not.
  *
- * Uses a daily transient to avoid calling dbDelta on every request.
+ * Standard WordPress pattern for custom tables: store a DB version option
+ * and compare against a hardcoded constant on every request. dbDelta only
+ * runs when the version has changed (initial install or schema upgrade).
  */
-function mrmurphy_likes_ensure_table() {
-	if ( get_transient( 'mmb_likes_table_ready' ) ) {
-		return;
+function mrmurphy_likes_check_table() {
+	$current_version = get_option( 'mrmurphy_likes_db_version', '' );
+
+	if ( $current_version !== MRMURPHY_LIKES_DB_VERSION ) {
+		mrmurphy_likes_create_table();
+		update_option( 'mrmurphy_likes_db_version', MRMURPHY_LIKES_DB_VERSION );
 	}
-	mrmurphy_likes_create_table();
-	set_transient( 'mmb_likes_table_ready', 1, DAY_IN_SECONDS );
 }
-add_action( 'rest_api_init', 'mrmurphy_likes_ensure_table' );
+add_action( 'init', 'mrmurphy_likes_check_table' );
 
 /**
  * Resolve the like identifier for the current request.
