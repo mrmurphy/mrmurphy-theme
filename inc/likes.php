@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'MRMURPHY_LIKES_DB_VERSION', '1.0' );
+define( 'MRMURPHY_LIKES_DB_VERSION', '1.1' );
 
 /**
  * Register REST routes for the mrmurphy/v1 likes controller.
@@ -82,6 +82,7 @@ function mrmurphy_likes_create_table() {
 		created_at DATETIME NOT NULL,
 		PRIMARY KEY  (like_id),
 		UNIQUE KEY uniq_post_identifier (post_id, identifier),
+		KEY          identifier (identifier),
 		KEY          post_created (post_id, created_at)
 	) {$charset};";
 
@@ -101,6 +102,15 @@ function mrmurphy_likes_check_table() {
 	$current_version = get_option( 'mrmurphy_likes_db_version', '' );
 
 	if ( $current_version !== MRMURPHY_LIKES_DB_VERSION ) {
+		// dbDelta handles table creation and column changes but does NOT
+		// add indexes to existing tables. Run a separate ALTER for the
+		// identifier index added in v1.1.
+		if ( version_compare( $current_version, '1.1', '<' ) && '' !== $current_version ) {
+			global $wpdb;
+			$table = $wpdb->prefix . 'mmb_likes';
+			$wpdb->query( "ALTER TABLE {$table} ADD INDEX identifier (identifier)" );
+		}
+
 		mrmurphy_likes_create_table();
 		update_option( 'mrmurphy_likes_db_version', MRMURPHY_LIKES_DB_VERSION );
 	}
@@ -172,6 +182,66 @@ function mrmurphy_likes_recount( $post_id ) {
 	);
 
 	update_post_meta( $post_id, '_mmb_like_count', $count );
+}
+
+/**
+ * Migrate anonymous (client-id) likes to a logged-in user identifier.
+ *
+ * When a user who previously liked posts while logged out logs in, their
+ * anonymous likes (stored under the localStorage client_id) are transferred
+ * to `user:<id>`. If a `user:<id>` row already exists for a post, the
+ * anonymous row is removed (no double-counting).
+ *
+ * @param string $client_id The anonymous client_id from localStorage.
+ */
+function mrmurphy_likes_migrate_identifier( $client_id ) {
+	if ( ! is_user_logged_in() || empty( $client_id ) ) {
+		return;
+	}
+
+	global $wpdb;
+	$table    = $wpdb->prefix . 'mmb_likes';
+	$user_uid = 'user:' . get_current_user_id();
+
+	// Find all anonymous likes for this client_id.
+	$anon_likes = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT like_id, post_id FROM {$table} WHERE identifier = %s",
+			$client_id
+		)
+	);
+
+	if ( empty( $anon_likes ) ) {
+		return;
+	}
+
+	foreach ( $anon_likes as $like ) {
+		// Does the user already have a like for this post?
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND identifier = %s",
+				$like->post_id,
+				$user_uid
+			)
+		);
+
+		if ( $existing > 0 ) {
+			// User already liked this post while logged in — remove the
+			// anonymous duplicate so the count stays accurate.
+			$wpdb->delete( $table, array( 'like_id' => $like->like_id ), array( '%d' ) );
+		} else {
+			// Transfer the anonymous like to the user identifier.
+			$wpdb->update(
+				$table,
+				array( 'identifier' => $user_uid ),
+				array( 'like_id' => $like->like_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+		}
+
+		mrmurphy_likes_recount( $like->post_id );
+	}
 }
 
 /**
@@ -312,6 +382,11 @@ function mrmurphy_likes_toggle( WP_REST_Request $request ) {
 	if ( '' === $identifier || strlen( $identifier ) > 64 ) {
 		return new WP_Error( 'mmb_likes_bad_id', __( 'Invalid client identifier.', 'mrmurphy' ), array( 'status' => 400 ) );
 	}
+
+	// Merge anonymous likes from this client_id into the user's account.
+	// This runs at most once per login session (until all anon likes are
+	// migrated).
+	mrmurphy_likes_migrate_identifier( $client_id );
 
 	if ( ! mrmurphy_likes_rate_limit( $post_id ) ) {
 		return new WP_Error( 'mmb_likes_rate_limited', __( 'Slow down a moment.', 'mrmurphy' ), array( 'status' => 429 ) );
