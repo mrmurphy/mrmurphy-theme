@@ -130,6 +130,10 @@ function mrmurphy_likes_resolve_identifier( $client_id ) {
 	if ( is_user_logged_in() ) {
 		return 'user:' . get_current_user_id();
 	}
+	// Strip any attempted user: prefix to prevent spoofing.
+	if ( strpos( $client_id, 'user:' ) === 0 ) {
+		$client_id = substr( $client_id, 5 );
+	}
 	return $client_id;
 }
 
@@ -199,6 +203,10 @@ function mrmurphy_likes_migrate_identifier( $client_id ) {
 		return;
 	}
 
+	if ( get_user_meta( get_current_user_id(), '_mmb_likes_migrated', true ) ) {
+		return;
+	}
+
 	global $wpdb;
 	$table    = $wpdb->prefix . 'mmb_likes';
 	$user_uid = 'user:' . get_current_user_id();
@@ -212,36 +220,54 @@ function mrmurphy_likes_migrate_identifier( $client_id ) {
 	);
 
 	if ( empty( $anon_likes ) ) {
+		update_user_meta( get_current_user_id(), '_mmb_likes_migrated', 1 );
 		return;
 	}
 
-	foreach ( $anon_likes as $like ) {
-		// Does the user already have a like for this post?
-		$existing = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND identifier = %s",
-				$like->post_id,
-				$user_uid
-			)
-		);
+	$affected_posts = array();
 
-		if ( $existing > 0 ) {
-			// User already liked this post while logged in — remove the
-			// anonymous duplicate so the count stays accurate.
-			$wpdb->delete( $table, array( 'like_id' => $like->like_id ), array( '%d' ) );
-		} else {
-			// Transfer the anonymous like to the user identifier.
-			$wpdb->update(
-				$table,
-				array( 'identifier' => $user_uid ),
-				array( 'like_id' => $like->like_id ),
-				array( '%s' ),
-				array( '%d' )
+	$wpdb->query( 'START TRANSACTION' );
+
+	try {
+		foreach ( $anon_likes as $like ) {
+			$affected_posts[ $like->post_id ] = true;
+
+			// Does the user already have a like for this post?
+			$existing = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND identifier = %s",
+					$like->post_id,
+					$user_uid
+				)
 			);
+
+			if ( $existing > 0 ) {
+				// User already liked this post while logged in — remove the
+				// anonymous duplicate so the count stays accurate.
+				$wpdb->delete( $table, array( 'like_id' => $like->like_id ), array( '%d' ) );
+			} else {
+				// Transfer the anonymous like to the user identifier.
+				$wpdb->update(
+					$table,
+					array( 'identifier' => $user_uid ),
+					array( 'like_id' => $like->like_id ),
+					array( '%s' ),
+					array( '%d' )
+				);
+			}
 		}
 
-		mrmurphy_likes_recount( $like->post_id );
+		$wpdb->query( 'COMMIT' );
+	} catch ( Exception $e ) {
+		$wpdb->query( 'ROLLBACK' );
+		throw $e;
 	}
+
+	foreach ( array_keys( $affected_posts ) as $pid ) {
+		mrmurphy_likes_recount( $pid );
+	}
+
+	update_user_meta( get_current_user_id(), '_mmb_likes_migrated', 1 );
 }
 
 /**
@@ -259,25 +285,22 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 	global $wpdb;
 	$table = $wpdb->prefix . 'mmb_likes';
 
-	$has = mrmurphy_has_liked( $post_id, $identifier );
-
-	if ( 'like' === $action && ! $has ) {
-		$result = $wpdb->insert(
-			$table,
-			array(
-				'post_id'    => $post_id,
-				'identifier' => $identifier,
-				'created_at' => current_time( 'mysql' ),
-			),
-			array( '%d', '%s', '%s' )
-		);
+	if ( 'like' === $action ) {
+		$result = $wpdb->query( $wpdb->prepare(
+			"INSERT INTO {$table} (post_id, identifier, created_at)
+			 VALUES (%d, %s, %s)
+			 ON DUPLICATE KEY UPDATE like_id = like_id",
+			$post_id,
+			$identifier,
+			current_time( 'mysql' )
+		) );
 
 		if ( false === $result ) {
-			error_log( 'MrMurphy Likes: insert failed for post ' . $post_id . ' — ' . $wpdb->last_error );
-		} else {
-			mrmurphy_likes_recount( $post_id );
+			error_log( 'MrMurphy Likes: DB write failed for post ' . $post_id );
 		}
-	} elseif ( 'unlike' === $action && $has ) {
+
+		mrmurphy_likes_recount( $post_id );
+	} elseif ( 'unlike' === $action ) {
 		$result = $wpdb->delete(
 			$table,
 			array(
@@ -288,7 +311,7 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 		);
 
 		if ( false === $result ) {
-			error_log( 'MrMurphy Likes: delete failed for post ' . $post_id . ' — ' . $wpdb->last_error );
+			error_log( 'MrMurphy Likes: DB write failed for post ' . $post_id );
 		} else {
 			mrmurphy_likes_recount( $post_id );
 		}
@@ -301,14 +324,38 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 }
 
 /**
+ * Resolve the real client IP from server variables, checking common
+ * proxy-forwarded headers before falling back to REMOTE_ADDR.
+ *
+ * @return string The validated IP address, or empty string on failure.
+ */
+function mrmurphy_likes_get_client_ip() {
+	$headers = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
+	foreach ( $headers as $h ) {
+		if ( isset( $_SERVER[ $h ] ) && ! empty( $_SERVER[ $h ] ) ) {
+			$ip = wp_unslash( $_SERVER[ $h ] );
+			// X-Forwarded-For can be comma-separated — take the first.
+			if ( strpos( $ip, ',' ) !== false ) {
+				$ip = trim( explode( ',', $ip )[0] );
+			}
+			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+				return $ip;
+			}
+		}
+	}
+	return '';
+}
+
+/**
  * Simple per-IP rate limit so a single source can't hammer the toggle
- * endpoint. Limits one mutation per IP per 2 seconds per post.
+ * endpoint. Limits one mutation per IP per 2 seconds per post, plus a
+ * 1 request/second global cap regardless of post.
  *
  * @param int $post_id Post ID.
  * @return bool True when the request is allowed; false when rate-limited.
  */
 function mrmurphy_likes_rate_limit( $post_id ) {
-	$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : '';
+	$ip  = mrmurphy_likes_get_client_ip();
 	$key = 'mmb_like_ip_' . md5( $ip . ':' . $post_id );
 
 	if ( false !== get_transient( $key ) ) {
@@ -316,6 +363,14 @@ function mrmurphy_likes_rate_limit( $post_id ) {
 	}
 
 	set_transient( $key, 1, 2 );
+
+	// Global per-IP throttle (regardless of post)
+	$global_key = 'mmb_like_global_' . md5( $ip );
+	if ( false !== get_transient( $global_key ) ) {
+		return false;
+	}
+	set_transient( $global_key, 1, 1 );
+
 	return true;
 }
 
@@ -347,6 +402,10 @@ function mrmurphy_likes_get_batch( WP_REST_Request $request ) {
 
 	$out = array();
 	foreach ( $post_ids as $post_id ) {
+		$post = get_post( $post_id );
+		if ( ! $post || 'publish' !== $post->post_status ) {
+			continue;
+		}
 		$out[ $post_id ] = array(
 			'count' => mrmurphy_like_count( $post_id ),
 			'liked' => $identifier ? mrmurphy_has_liked( $post_id, $identifier ) : false,
@@ -354,7 +413,7 @@ function mrmurphy_likes_get_batch( WP_REST_Request $request ) {
 	}
 
 	$response = new WP_REST_Response( array( 'likes' => $out ) );
-	$response->header( 'Cache-Control', 'public, max-age=60' );
+	$response->header( 'Cache-Control', 'private, max-age=60' );
 	return $response;
 }
 
@@ -383,14 +442,27 @@ function mrmurphy_likes_toggle( WP_REST_Request $request ) {
 		return new WP_Error( 'mmb_likes_bad_id', __( 'Invalid client identifier.', 'mrmurphy' ), array( 'status' => 400 ) );
 	}
 
-	// Merge anonymous likes from this client_id into the user's account.
-	// This runs at most once per login session (until all anon likes are
-	// migrated).
-	mrmurphy_likes_migrate_identifier( $client_id );
+	// Safety: if the identifier claims to belong to a logged-in user, verify
+	// the current request is actually authenticated as that user.
+	if ( strpos( $identifier, 'user:' ) === 0 ) {
+		$claimed_id = (int) substr( $identifier, 5 );
+		if ( ! is_user_logged_in() || (int) get_current_user_id() !== $claimed_id ) {
+			return new WP_Error(
+				'mmb_likes_spoof',
+				__( 'Invalid identifier.', 'mrmurphy' ),
+				array( 'status' => 403 )
+			);
+		}
+	}
 
 	if ( ! mrmurphy_likes_rate_limit( $post_id ) ) {
 		return new WP_Error( 'mmb_likes_rate_limited', __( 'Slow down a moment.', 'mrmurphy' ), array( 'status' => 429 ) );
 	}
+
+	// Merge anonymous likes from this client_id into the user's account.
+	// This runs at most once per login session (until all anon likes are
+	// migrated).
+	mrmurphy_likes_migrate_identifier( $client_id );
 
 	$state = mrmurphy_likes_apply( $post_id, $identifier, $action );
 
