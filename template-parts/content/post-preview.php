@@ -25,30 +25,32 @@ $mb_attrs   = $is_microblog ? ' data-microblog-card data-post-id="' . (int) get_
 	<?php echo $mb_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 >
 	<?php if ( $is_microblog ) : ?>
-		<div class="mb-card__head">
-			<a class="mb-card__avatar" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" aria-hidden="true" tabindex="-1">
-				<?php echo get_avatar( get_the_author_meta( 'ID' ), 36 ); ?>
-			</a>
-			<div class="mb-card__who">
-				<a class="mb-card__name" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>">
-					<?php echo esc_html( get_the_author_meta( 'display_name' ) ); ?>
-				</a>
-				<span class="mb-card__handle-line">
-					<a class="mb-card__handle" href="<?php echo esc_url( $permalink ); ?>">@<?php echo esc_html( mrmurphy_author_handle() ); ?></a>
-					<span class="mb-card__time"> · <?php echo esc_html( mrmurphy_relative_time() ); ?></span>
+		<a class="mb-card__link" href="<?php echo esc_url( $permalink ); ?>">
+			<div class="mb-card__head">
+				<span class="mb-card__avatar" aria-hidden="true">
+					<?php echo get_avatar( get_the_author_meta( 'ID' ), 36 ); ?>
 				</span>
+				<div class="mb-card__who">
+					<span class="mb-card__name">
+						<?php echo esc_html( get_the_author_meta( 'display_name' ) ); ?>
+					</span>
+					<span class="mb-card__handle-line">
+						<span class="mb-card__handle">@<?php echo esc_html( mrmurphy_author_handle() ); ?></span>
+						<span class="mb-card__time"> · <?php echo esc_html( mrmurphy_relative_time() ); ?></span>
+					</span>
+				</div>
 			</div>
-		</div>
 
-		<?php if ( has_post_thumbnail() ) : ?>
-			<a class="mb-card__image featured-image--square" href="<?php echo esc_url( $permalink ); ?>" aria-hidden="true" tabindex="-1">
-				<?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
-			</a>
-		<?php endif; ?>
+			<?php if ( has_post_thumbnail() ) : ?>
+				<div class="mb-card__image featured-image--square" aria-hidden="true">
+					<?php the_post_thumbnail( 'mrmurphy-square-md' ); ?>
+				</div>
+			<?php endif; ?>
 
-		<div id="<?php echo esc_attr( $preview_id ); ?>" class="mb-card__body">
-			<?php echo mrmurphy_get_microblog_preview_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-		</div>
+			<div id="<?php echo esc_attr( $preview_id ); ?>" class="mb-card__body">
+				<?php echo mrmurphy_get_microblog_preview_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+		</a>
 
 		<footer class="mb-card__actions">
 			<button

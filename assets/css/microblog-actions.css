@@ -69,12 +69,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-fg, #2d2a2e);
-  text-decoration: none;
   line-height: 1.2;
-}
-
-.mb-card__name:hover {
-  text-decoration: underline;
 }
 
 .mb-card__handle-line {
@@ -86,11 +81,6 @@
 
 .mb-card__handle {
   color: var(--color-fg-muted, #727072);
-  text-decoration: none;
-}
-
-.mb-card__handle:hover {
-  text-decoration: underline;
 }
 
 .mb-card__time {
@@ -113,6 +103,18 @@
 }
 
 /* ===== BODY ===== */
+
+.mb-card__link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mb-card__link:hover {
+  cursor: pointer;
+}
 
 .mb-card__body {
   color: var(--color-fg, #2d2a2e);
