@@ -600,6 +600,13 @@
 
 	/* ---------- Comment ---------- */
 
+	function cleanErrorMessage(msg) {
+		if (!msg) return 'Comment failed.';
+		var tmp = document.createElement('div');
+		tmp.innerHTML = msg;
+		return tmp.textContent || tmp.innerText || msg.replace(/<[^>]+>/g, '');
+	}
+
 	function escHtml(str) {
 		return String(str)
 			.replace(/&/g, '&amp;')
@@ -698,7 +705,7 @@
 						form.reset();
 						incrementCommentCount(form.getAttribute('data-post-id'));
 					} else {
-						var msg = data && (data.message || (data.code)) ? (data.message || data.code) : 'Comment failed.';
+						var msg = data && (data.message || (data.code)) ? cleanErrorMessage(data.message || data.code) : 'Comment failed.';
 						if (errEl) errEl.textContent = msg;
 					}
 				}).catch(function () {

@@ -262,19 +262,83 @@ function mrmurphy_microblog_comments_list( WP_REST_Request $request ) {
 }
 
 /**
+ * Resolve the client IP address for rate limiting.
+ *
+ * Checks proxy-forwarded headers before falling back to REMOTE_ADDR.
+ * No proxy allowlist — trusts the leftmost external IP in the chain.
+ * @see ticket 04-medium for a proxy-whitelist-aware resolver.
+ */
+function mrmurphy_comment_get_client_ip() {
+	$headers = array(
+		'HTTP_CF_CONNECTING_IP',
+		'HTTP_X_FORWARDED_FOR',
+		'HTTP_X_REAL_IP',
+		'REMOTE_ADDR',
+	);
+	foreach ( $headers as $h ) {
+		$val = $_SERVER[ $h ] ?? '';
+		if ( '' !== $val ) {
+			// X-Forwarded-For may be a comma-separated chain; take the leftmost.
+			$parts = explode( ',', $val );
+			return trim( $parts[0] );
+		}
+	}
+	return '';
+}
+
+/**
+ * Check the comment submission rate limit.
+ *
+ * Returns true if under the limit, false if rate-limited.
+ * Anonymous requests are keyed by IP; logged-in by user ID.
+ *
+ * Note: the read-check-write cycle has a small TOCTOU window. Concurrent
+ * requests may burst slightly over the limit — acceptable for an advisory
+ * rate limiter. A persistent object cache with wp_cache_increment() would
+ * eliminate the race.
+ */
+function mrmurphy_comment_check_rate_limit() {
+	if ( is_user_logged_in() ) {
+		$key   = 'mmb_cmt_rl_usr_' . get_current_user_id();
+		$limit = 60;
+	} else {
+		$ip = mrmurphy_comment_get_client_ip();
+		if ( '' === $ip ) {
+			return false;
+		}
+		$key   = 'mmb_cmt_rl_ip_' . md5( $ip );
+		$limit = 10;
+	}
+
+	$count = (int) get_transient( $key );
+	if ( $count >= $limit ) {
+		return false;
+	}
+
+	set_transient( $key, $count + 1, 900 ); // 15 minutes.
+	return true;
+}
+
+/**
  * REST: POST /mrmurphy/v1/comments
  *
- * Body fields: post_id, content, author_name?, author_email?, mmb_hp? (honeypot).
+ * Body fields: post_id, content, author_name?, author_email?, mmb_extra? (honeypot).
  * Falls through to wp_handle_comment_submission() so all standard flood/dupe
  * and moderation rules apply.
  */
 function mrmurphy_microblog_comment_submit( WP_REST_Request $request ) {
-	$post_id = absint( $request->get_param( 'post_id' ) );
-	$content = (string) $request->get_param( 'content' );
-	$hp      = (string) $request->get_param( 'mmb_hp' );
+	$post_id  = absint( $request->get_param( 'post_id' ) );
+	$content  = (string) $request->get_param( 'content' );
+	$extra    = (string) $request->get_param( 'mmb_extra' );
+	$consent  = (bool) $request->get_param( 'wp-comment-cookies-consent' );
 
-	if ( '' !== trim( $hp ) ) {
-		return new WP_Error( 'mmb_hp', __( 'Spam detected.', 'mrmurphy' ), array( 'status' => 400 ) );
+	// Cheap checks first — don't burn rate-limit slots on obvious spam.
+	if ( '' !== trim( $extra ) ) {
+		return new WP_Error( 'mmb_spam', __( 'Comment submission rejected.', 'mrmurphy' ), array( 'status' => 400 ) );
+	}
+
+	if ( ! mrmurphy_comment_check_rate_limit() ) {
+		return new WP_Error( 'mmb_rate_limited', __( 'Comment submission rejected.', 'mrmurphy' ), array( 'status' => 429 ) );
 	}
 
 	$post = get_post( $post_id );
@@ -287,18 +351,17 @@ function mrmurphy_microblog_comment_submit( WP_REST_Request $request ) {
 	}
 
 	$comment_data = array(
-		'comment_post_ID'      => $post_id,
-		'comment_content'      => $content,
-		'comment_type'         => 'comment',
-		'comment_parent'       => 0,
+		'comment_post_ID' => $post_id,
+		'comment'         => $content,
+		'comment_parent'  => 0,
 	);
 
 	if ( is_user_logged_in() ) {
-		$user                 = wp_get_current_user();
-		$comment_data['user_id'] = $user->ID;
-		$comment_data['comment_author']       = $user->display_name;
-		$comment_data['comment_author_email'] = $user->user_email;
-		$comment_data['comment_author_url']   = $user->user_url;
+		$user                      = wp_get_current_user();
+		$comment_data['user_id']   = $user->ID;
+		$comment_data['author']    = $user->display_name;
+		$comment_data['email']     = $user->user_email;
+		$comment_data['url']       = $user->user_url;
 	} else {
 		$author_name  = trim( (string) $request->get_param( 'author_name' ) );
 		$author_email = trim( (string) $request->get_param( 'author_email' ) );
@@ -310,9 +373,9 @@ function mrmurphy_microblog_comment_submit( WP_REST_Request $request ) {
 			return new WP_Error( 'mmb_email', __( 'Please enter a valid email address.', 'mrmurphy' ), array( 'status' => 400 ) );
 		}
 
-		$comment_data['comment_author']       = $author_name;
-		$comment_data['comment_author_email'] = $author_email;
-		$comment_data['comment_author_url']   = '';
+		$comment_data['author']    = $author_name;
+		$comment_data['email']     = $author_email;
+		$comment_data['url']       = '';
 	}
 
 	$comment = wp_handle_comment_submission( $comment_data );
@@ -321,7 +384,15 @@ function mrmurphy_microblog_comment_submit( WP_REST_Request $request ) {
 		return $comment;
 	}
 
-	$pending = '1' === (string) $comment->comment_approved;
+	$pending = '0' === (string) $comment->comment_approved;
+
+	// Set comment cookies if the user opted in (not done automatically
+	// in REST API context — wp_set_comment_cookies only fires from
+	// the standard wp-comments-post.php flow).
+	if ( $consent ) {
+		wp_set_comment_cookies( $comment, wp_get_current_user(), true );
+	}
+
 	return new WP_REST_Response( array(
 		'comment' => array(
 			'id'      => (int) $comment->comment_ID,
@@ -360,24 +431,25 @@ function mrmurphy_render_microblog_dialogs() {
 					<textarea class="mb-dialog__textarea" name="content" rows="3" placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>" required></textarea>
 					<input type="hidden" name="author_email" value="<?php echo esc_attr( $current_user->user_email ); ?>" />
 					<input type="hidden" name="author_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
-				<?php else : ?>
+				<?php else :
+					$commenter = wp_get_current_commenter(); ?>
 					<textarea class="mb-dialog__textarea" name="content" rows="3" placeholder="<?php esc_attr_e( 'Write a comment…', 'mrmurphy' ); ?>" required></textarea>
 					<div class="mb-dialog__row" data-mb-comment-author-row>
 						<div class="mb-dialog__field">
 							<label class="mb-dialog__label" for="mb-comment-name"><?php esc_html_e( 'Name', 'mrmurphy' ); ?></label>
-							<input id="mb-comment-name" class="mb-dialog__input" name="author_name" type="text" autocomplete="name" required />
+							<input id="mb-comment-name" class="mb-dialog__input" name="author_name" type="text" autocomplete="name" value="<?php echo esc_attr( $commenter['comment_author'] ); ?>" required />
 						</div>
 						<div class="mb-dialog__field">
 							<label class="mb-dialog__label" for="mb-comment-email"><?php esc_html_e( 'Email', 'mrmurphy' ); ?></label>
-							<input id="mb-comment-email" class="mb-dialog__input" name="author_email" type="email" autocomplete="email" required />
+							<input id="mb-comment-email" class="mb-dialog__input" name="author_email" type="email" autocomplete="email" value="<?php echo esc_attr( $commenter['comment_author_email'] ); ?>" required />
 						</div>
 					</div>
 					<label class="mb-dialog__cookies">
-						<input type="checkbox" name="wp-comment-cookies-consent" value="yes" />
+						<input type="checkbox" name="wp-comment-cookies-consent" value="yes" <?php checked( ! empty( $commenter['comment_author_email'] ) ); ?> />
 						<span><?php esc_html_e( 'Save my name &amp; email for next time', 'mrmurphy' ); ?></span>
 					</label>
 				<?php endif; ?>
-				<input type="text" name="mmb_hp" class="mb-dialog__honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+				<input type="text" name="mmb_extra" class="mb-dialog__extra" tabindex="-1" autocomplete="off" aria-hidden="true" />
 				<div class="mb-dialog__form-actions">
 					<span class="mb-dialog__form-error" data-mb-comment-error role="alert"></span>
 					<button type="submit" class="mb-dialog__submit"><?php esc_html_e( 'Post comment', 'mrmurphy' ); ?></button>

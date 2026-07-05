@@ -567,7 +567,7 @@
   margin-top: 3px;
 }
 
-.mb-dialog__honeypot {
+.mb-dialog__extra {
   position: absolute;
   left: -9999px;
   width: 1px;
