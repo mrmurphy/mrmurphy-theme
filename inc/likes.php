@@ -118,23 +118,97 @@ function mrmurphy_likes_check_table() {
 add_action( 'init', 'mrmurphy_likes_check_table' );
 
 /**
+ * Create an HMAC-signed anonymous token.
+ *
+ * Format: srv:<base64url_random>:<expiry>:<truncated_base64url_hmac>
+ * No server storage needed — validate with hash_equals and expiry check.
+ *
+ * @return string
+ */
+function mrmurphy_likes_create_token() {
+	$random   = substr( strtr( base64_encode( random_bytes( 9 ) ), '+/', '-_' ), 0, 12 );
+	$exp      = time() + YEAR_IN_SECONDS;
+	$payload  = $random . ':' . $exp;
+	$hmac_raw = hash_hmac( 'sha256', $payload, NONCE_KEY, true );
+	$hmac_b64 = substr( rtrim( strtr( base64_encode( $hmac_raw ), '+/', '-_' ), '=' ), 0, 22 );
+	return 'srv:' . $payload . ':' . $hmac_b64;
+}
+
+/**
+ * Validate an HMAC-signed anonymous token.
+ *
+ * Returns the token's jti (random component) on success, false on failure.
+ *
+ * @param string $token Raw token string.
+ * @return string|false
+ */
+function mrmurphy_likes_validate_token( $token ) {
+	if ( strpos( $token, 'srv:' ) !== 0 ) {
+		return false;
+	}
+	$parts = explode( ':', $token );
+	if ( count( $parts ) !== 4 ) {
+		return false;
+	}
+	$random  = $parts[1];
+	$exp     = (int) $parts[2];
+	$hmac_b64 = $parts[3];
+
+	if ( $exp < time() ) {
+		return false;
+	}
+
+	$payload      = $random . ':' . $exp;
+	$expected_raw = hash_hmac( 'sha256', $payload, NONCE_KEY, true );
+	$expected_b64 = substr( rtrim( strtr( base64_encode( $expected_raw ), '+/', '-_' ), '=' ), 0, 22 );
+
+	if ( ! hash_equals( $expected_b64, $hmac_b64 ) ) {
+		return false;
+	}
+
+	return $random;
+}
+
+/**
+ * Check the per-token rate limit (50 like actions per hour per token).
+ *
+ * Relies on the caller having already validated the token. Extracts the
+ * jti from the second `:`-delimited field without re-computing the HMAC.
+ *
+ * @param string $token Pre-validated token string.
+ * @return bool True if under the limit; false if rate-limited.
+ */
+function mrmurphy_likes_check_token_rate_limit( $token ) {
+	$parts = explode( ':', $token );
+	if ( count( $parts ) !== 4 ) {
+		return false;
+	}
+	$key   = 'mmb_like_token_' . $parts[1];
+	$count = (int) get_transient( $key );
+	if ( $count >= 50 ) {
+		return false;
+	}
+	set_transient( $key, $count + 1, HOUR_IN_SECONDS );
+	return true;
+}
+
+/**
  * Resolve the like identifier for the current request.
  *
- * Logged-in users get `user:<id>` so their likes follow them across devices.
- * Anonymous visitors use the client_id they sent.
+ * Logged-in users get `user:<id>`. Anonymous visitors with a valid
+ * HMAC-signed token get the token itself as the identifier.
  *
- * @param string $client_id Client-provided identifier.
+ * @param string $client_id Client-provided token.
  * @return string
  */
 function mrmurphy_likes_resolve_identifier( $client_id ) {
 	if ( is_user_logged_in() ) {
 		return 'user:' . get_current_user_id();
 	}
-	// Strip any attempted user: prefix to prevent spoofing.
-	if ( strpos( $client_id, 'user:' ) === 0 ) {
-		$client_id = substr( $client_id, 5 );
+	if ( ! empty( $client_id ) && mrmurphy_likes_validate_token( $client_id ) ) {
+		return $client_id;
 	}
-	return $client_id;
+	return '';
 }
 
 /**
@@ -186,88 +260,6 @@ function mrmurphy_likes_recount( $post_id ) {
 	);
 
 	update_post_meta( $post_id, '_mmb_like_count', $count );
-}
-
-/**
- * Migrate anonymous (client-id) likes to a logged-in user identifier.
- *
- * When a user who previously liked posts while logged out logs in, their
- * anonymous likes (stored under the localStorage client_id) are transferred
- * to `user:<id>`. If a `user:<id>` row already exists for a post, the
- * anonymous row is removed (no double-counting).
- *
- * @param string $client_id The anonymous client_id from localStorage.
- */
-function mrmurphy_likes_migrate_identifier( $client_id ) {
-	if ( ! is_user_logged_in() || empty( $client_id ) ) {
-		return;
-	}
-
-	if ( get_user_meta( get_current_user_id(), '_mmb_likes_migrated', true ) ) {
-		return;
-	}
-
-	global $wpdb;
-	$table    = $wpdb->prefix . 'mmb_likes';
-	$user_uid = 'user:' . get_current_user_id();
-
-	// Find all anonymous likes for this client_id.
-	$anon_likes = $wpdb->get_results(
-		$wpdb->prepare(
-			"SELECT like_id, post_id FROM {$table} WHERE identifier = %s",
-			$client_id
-		)
-	);
-
-	if ( empty( $anon_likes ) ) {
-		update_user_meta( get_current_user_id(), '_mmb_likes_migrated', 1 );
-		return;
-	}
-
-	$affected_posts = array();
-
-	$wpdb->query( 'START TRANSACTION' );
-
-	try {
-		foreach ( $anon_likes as $like ) {
-			$affected_posts[ $like->post_id ] = true;
-
-			// Does the user already have a like for this post?
-			$existing = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND identifier = %s",
-					$like->post_id,
-					$user_uid
-				)
-			);
-
-			if ( $existing > 0 ) {
-				// User already liked this post while logged in — remove the
-				// anonymous duplicate so the count stays accurate.
-				$wpdb->delete( $table, array( 'like_id' => $like->like_id ), array( '%d' ) );
-			} else {
-				// Transfer the anonymous like to the user identifier.
-				$wpdb->update(
-					$table,
-					array( 'identifier' => $user_uid ),
-					array( 'like_id' => $like->like_id ),
-					array( '%s' ),
-					array( '%d' )
-				);
-			}
-		}
-
-		$wpdb->query( 'COMMIT' );
-	} catch ( Exception $e ) {
-		$wpdb->query( 'ROLLBACK' );
-		throw $e;
-	}
-
-	foreach ( array_keys( $affected_posts ) as $pid ) {
-		mrmurphy_likes_recount( $pid );
-	}
-
-	update_user_meta( get_current_user_id(), '_mmb_likes_migrated', 1 );
 }
 
 /**
@@ -324,57 +316,6 @@ function mrmurphy_likes_apply( $post_id, $identifier, $action ) {
 }
 
 /**
- * Resolve the real client IP from server variables, checking common
- * proxy-forwarded headers before falling back to REMOTE_ADDR.
- *
- * @return string The validated IP address, or empty string on failure.
- */
-function mrmurphy_likes_get_client_ip() {
-	$headers = array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR' );
-	foreach ( $headers as $h ) {
-		if ( isset( $_SERVER[ $h ] ) && ! empty( $_SERVER[ $h ] ) ) {
-			$ip = wp_unslash( $_SERVER[ $h ] );
-			// X-Forwarded-For can be comma-separated — take the first.
-			if ( strpos( $ip, ',' ) !== false ) {
-				$ip = trim( explode( ',', $ip )[0] );
-			}
-			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
-				return $ip;
-			}
-		}
-	}
-	return '';
-}
-
-/**
- * Simple per-IP rate limit so a single source can't hammer the toggle
- * endpoint. Limits one mutation per IP per 2 seconds per post, plus a
- * 1 request/second global cap regardless of post.
- *
- * @param int $post_id Post ID.
- * @return bool True when the request is allowed; false when rate-limited.
- */
-function mrmurphy_likes_rate_limit( $post_id ) {
-	$ip  = mrmurphy_likes_get_client_ip();
-	$key = 'mmb_like_ip_' . md5( $ip . ':' . $post_id );
-
-	if ( false !== get_transient( $key ) ) {
-		return false;
-	}
-
-	set_transient( $key, 1, 2 );
-
-	// Global per-IP throttle (regardless of post)
-	$global_key = 'mmb_like_global_' . md5( $ip );
-	if ( false !== get_transient( $global_key ) ) {
-		return false;
-	}
-	set_transient( $global_key, 1, 1 );
-
-	return true;
-}
-
-/**
  * GET /wp-json/mrmurphy/v1/likes — batch hydrate visible cards.
  *
  * @param WP_REST_Request $request Request.
@@ -399,6 +340,7 @@ function mrmurphy_likes_get_batch( WP_REST_Request $request ) {
 	$post_ids = array_slice( $post_ids, 0, 50 );
 
 	$identifier = mrmurphy_likes_resolve_identifier( $client_id );
+	$can_like   = ! empty( $identifier );
 
 	$out = array();
 	foreach ( $post_ids as $post_id ) {
@@ -408,7 +350,7 @@ function mrmurphy_likes_get_batch( WP_REST_Request $request ) {
 		}
 		$out[ $post_id ] = array(
 			'count' => mrmurphy_like_count( $post_id ),
-			'liked' => $identifier ? mrmurphy_has_liked( $post_id, $identifier ) : false,
+			'liked' => $can_like ? mrmurphy_has_liked( $post_id, $identifier ) : false,
 		);
 	}
 
@@ -438,31 +380,17 @@ function mrmurphy_likes_toggle( WP_REST_Request $request ) {
 	}
 
 	$identifier = mrmurphy_likes_resolve_identifier( $client_id );
-	if ( '' === $identifier || strlen( $identifier ) > 64 ) {
-		return new WP_Error( 'mmb_likes_bad_id', __( 'Invalid client identifier.', 'mrmurphy' ), array( 'status' => 400 ) );
+	if ( '' === $identifier ) {
+		return new WP_Error(
+			'mmb_likes_auth_required',
+			__( 'You must be logged in to like posts.', 'mrmurphy' ),
+			array( 'status' => 401 )
+		);
 	}
 
-	// Safety: if the identifier claims to belong to a logged-in user, verify
-	// the current request is actually authenticated as that user.
-	if ( strpos( $identifier, 'user:' ) === 0 ) {
-		$claimed_id = (int) substr( $identifier, 5 );
-		if ( ! is_user_logged_in() || (int) get_current_user_id() !== $claimed_id ) {
-			return new WP_Error(
-				'mmb_likes_spoof',
-				__( 'Invalid identifier.', 'mrmurphy' ),
-				array( 'status' => 403 )
-			);
-		}
-	}
-
-	if ( ! mrmurphy_likes_rate_limit( $post_id ) ) {
+	if ( strpos( $identifier, 'srv:' ) === 0 && ! mrmurphy_likes_check_token_rate_limit( $identifier ) ) {
 		return new WP_Error( 'mmb_likes_rate_limited', __( 'Slow down a moment.', 'mrmurphy' ), array( 'status' => 429 ) );
 	}
-
-	// Merge anonymous likes from this client_id into the user's account.
-	// This runs at most once per login session (until all anon likes are
-	// migrated).
-	mrmurphy_likes_migrate_identifier( $client_id );
 
 	$state = mrmurphy_likes_apply( $post_id, $identifier, $action );
 

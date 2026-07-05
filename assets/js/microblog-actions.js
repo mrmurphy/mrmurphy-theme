@@ -10,23 +10,26 @@
 	'use strict';
 
 	var ROOT = (window.mrmurphyMicroblog && window.mrmurphyMicroblog.root) || '/wp-json/mrmurphy/v1';
-	var CLIENT_ID_KEY = 'mmb_client_id';
-	var MAX_ID_LENGTH = 64;
+	var CLIENT_ID_KEY = 'mmb_client';
+
+	function isTokenExpired(token) {
+		var parts = token.split(':');
+		if (parts.length < 3) return true;
+		var exp = parseInt(parts[2], 10);
+		return isNaN(exp) || exp < Math.floor(Date.now() / 1000);
+	}
 
 	function getClientId() {
 		var stored = null;
 		try { stored = window.localStorage.getItem(CLIENT_ID_KEY); } catch (e) {}
-		if (stored && typeof stored === 'string' && stored.length <= MAX_ID_LENGTH) {
+		if (stored && typeof stored === 'string' && stored.indexOf('srv:') === 0 && !isTokenExpired(stored)) {
 			return stored;
 		}
-		var fresh = '';
-		if (window.crypto && typeof window.crypto.randomUUID === 'function') {
-			fresh = window.crypto.randomUUID();
-		} else {
-			fresh = 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+		if (typeof window.MMB_CLIENT_ID === 'string' && window.MMB_CLIENT_ID.length > 0) {
+			try { window.localStorage.setItem(CLIENT_ID_KEY, window.MMB_CLIENT_ID); } catch (e) {}
+			return window.MMB_CLIENT_ID;
 		}
-		try { window.localStorage.setItem(CLIENT_ID_KEY, fresh); } catch (e) {}
-		return fresh;
+		return '';
 	}
 
 	function ready(fn) {
@@ -81,7 +84,10 @@
 				throw r;
 			}).then(function (data) {
 				applyLikeState(btn, data.count, data.liked);
-			}).catch(function () {
+			}).catch(function (r) {
+				if (r && r.status === 401) {
+					try { window.localStorage.removeItem(CLIENT_ID_KEY); } catch (e) {}
+				}
 				applyLikeState(btn, prevCount, prevLiked);
 			});
 		});
