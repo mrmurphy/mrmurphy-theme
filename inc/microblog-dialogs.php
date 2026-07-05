@@ -12,6 +12,26 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Permission callback for mrmurphy/v1 routes that require CSRF protection.
+ *
+ * Verifies the X-WP-Nonce header (or _wpnonce query param) against the
+ * 'wp_rest' action. This matches how WordPress core protects its own
+ * cookie-authenticated REST endpoints and works for both logged-in and
+ * anonymous visitors.
+ *
+ * @return bool
+ */
+function mrmurphy_rest_require_nonce() {
+	$nonce = '';
+	if ( isset( $_SERVER['HTTP_X_WP_NONCE'] ) ) {
+		$nonce = wp_unslash( $_SERVER['HTTP_X_WP_NONCE'] );
+	} elseif ( isset( $_REQUEST['_wpnonce'] ) ) {
+		$nonce = wp_unslash( $_REQUEST['_wpnonce'] );
+	}
+	return (bool) wp_verify_nonce( $nonce, 'wp_rest' );
+}
+
+/**
  * Register REST routes that return rendered dialog partials on demand.
  */
 function mrmurphy_microblog_dialog_routes() {
@@ -89,7 +109,7 @@ function mrmurphy_microblog_dialog_routes() {
 		array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => 'mrmurphy_microblog_comment_submit',
-			'permission_callback' => '__return_true',
+			'permission_callback' => 'mrmurphy_rest_require_nonce',
 		)
 	);
 }

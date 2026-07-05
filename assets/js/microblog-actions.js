@@ -69,7 +69,7 @@
 				credentials: 'same-origin',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || ''
+					'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce)
 				},
 				body: JSON.stringify({
 					post_id: postId,
@@ -92,7 +92,7 @@
 		if (!ids.length) return;
 		fetch(ROOT + '/likes?post_ids=' + encodeURIComponent(ids.join(',')) + '&client_id=' + encodeURIComponent(clientId), {
 			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' }
+			headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) }
 		}).then(function (r) { return r.json(); }).then(function (data) {
 			cards.forEach(function (card) {
 				var id = card.getAttribute('data-post-id');
@@ -174,7 +174,7 @@
 
 		fetch(ROOT + route + '?post_id=' + encodeURIComponent(postId), {
 			credentials: 'same-origin',
-			headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' }
+			headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) }
 		}).then(function (r) { return r.json(); }).then(function (data) {
 			openDialog(openId, data.html || '');
 		}).catch(function () {
@@ -274,7 +274,7 @@
 				fetch(ROOT + '/comments', {
 					method: 'POST',
 					credentials: 'same-origin',
-					headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' },
+					headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) },
 					body: body
 				}).then(function (r) { return r.json(); }).then(function (data) {
 					if (data && data.comment) {
@@ -425,7 +425,7 @@
 
 			fetch(ROOT + '/dialog/share-mirrors?post_id=' + encodeURIComponent(postId), {
 				credentials: 'same-origin',
-				headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) || '' }
+				headers: { 'X-WP-Nonce': (window.mrmurphyMicroblog && window.mrmurphyMicroblog.nonce) }
 			}).then(function (r) { return r.json(); }).then(function (data) {
 				var slot = document.querySelector('#mmb-share-dialog [data-mb-share-mirrors]');
 				if (slot) slot.innerHTML = data.html || '';

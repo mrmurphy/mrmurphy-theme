@@ -25,7 +25,7 @@ function mrmurphy_likes_register_routes() {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => 'mrmurphy_likes_get_batch',
-				'permission_callback' => '__return_true',
+				'permission_callback' => 'mrmurphy_rest_require_nonce',
 				'args'                => array(
 					'post_ids'  => array(
 						'type'              => 'string',
@@ -42,7 +42,7 @@ function mrmurphy_likes_register_routes() {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => 'mrmurphy_likes_toggle',
-				'permission_callback' => '__return_true',
+				'permission_callback' => 'mrmurphy_rest_require_nonce',
 				'args'                => array(
 					'post_id'   => array(
 						'type'              => 'integer',
