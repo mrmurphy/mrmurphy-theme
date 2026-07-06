@@ -7,9 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$is_microblog = function_exists( 'wp_microblog_is' )
-	? wp_microblog_is()
-	: ( function_exists( 'mrmurphy_is_microblog' ) ? mrmurphy_is_microblog() : false );
+$is_microblog = function_exists( 'wp_microblog_is' ) ? wp_microblog_is() : false;
 $permalink    = get_permalink();
 $preview_id   = 'post-preview-' . get_the_ID();
 $meta_class   = ! empty( $args['meta_class'] ) ? $args['meta_class'] : 'post-preview__meta';
