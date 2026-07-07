@@ -264,26 +264,91 @@ function mrmurphy_microblog_comments_list( WP_REST_Request $request ) {
 /**
  * Resolve the client IP address for rate limiting.
  *
- * Checks proxy-forwarded headers before falling back to REMOTE_ADDR.
- * No proxy allowlist — trusts the leftmost external IP in the chain.
- * @see ticket 04-medium for a proxy-whitelist-aware resolver.
+ * Checks proxy-forwarded headers only when REMOTE_ADDR falls inside a
+ * trusted-proxy CIDR list (filter: 'mrmurphy_trusted_proxies', default
+ * empty). With no trusted proxies configured, REMOTE_ADDR is
+ * authoritative — safe default for installs not behind a CDN.
  */
 function mrmurphy_comment_get_client_ip() {
-	$headers = array(
-		'HTTP_CF_CONNECTING_IP',
-		'HTTP_X_FORWARDED_FOR',
-		'HTTP_X_REAL_IP',
-		'REMOTE_ADDR',
-	);
-	foreach ( $headers as $h ) {
-		$val = $_SERVER[ $h ] ?? '';
-		if ( '' !== $val ) {
-			// X-Forwarded-For may be a comma-separated chain; take the leftmost.
-			$parts = explode( ',', $val );
-			return trim( $parts[0] );
+	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+
+	if ( '' === $remote ) {
+		return '';
+	}
+
+	$trusted_proxies = apply_filters( 'mrmurphy_trusted_proxies', array() );
+
+	if ( empty( $trusted_proxies ) ) {
+		return $remote;
+	}
+
+	if ( ! mrmurphy_comment_ip_in_cidrs( $remote, $trusted_proxies ) ) {
+		return $remote;
+	}
+
+	// REMOTE_ADDR is a trusted proxy — honor forwarded headers.
+	foreach ( array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_REAL_IP' ) as $header ) {
+		if ( ! empty( $_SERVER[ $header ] ) ) {
+			$candidate = trim( sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
+			if ( '' !== $candidate && false === strpos( $candidate, ' ' ) ) {
+				return $candidate;
+			}
 		}
 	}
-	return '';
+
+	if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+		$chain = array_map( 'trim', explode( ',', sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) ) );
+		$leftmost = isset( $chain[0] ) ? $chain[0] : '';
+		if ( '' !== $leftmost ) {
+			return $leftmost;
+		}
+	}
+
+	return $remote;
+}
+
+/**
+ * Check whether an IP address falls inside a list of CIDR ranges.
+ *
+ * @param string $ip   IP address.
+ * @param array  $cidrs Array of CIDR strings.
+ * @return bool
+ */
+function mrmurphy_comment_ip_in_cidrs( $ip, $cidrs ) {
+	$packed = @inet_pton( $ip );
+	if ( false === $packed ) {
+		return false;
+	}
+
+	foreach ( $cidrs as $cidr ) {
+		if ( strpos( $cidr, '/' ) === false ) {
+			$cidr = $cidr . '/32';
+		}
+		list( $net, $mask ) = explode( '/', $cidr, 2 );
+		$net_packed = @inet_pton( $net );
+		if ( false === $net_packed ) {
+			continue;
+		}
+		$mask = (int) $mask;
+
+		if ( strlen( $packed ) !== strlen( $net_packed ) ) {
+			continue;
+		}
+
+		$bits_remaining = $mask;
+		for ( $i = 0; $i < strlen( $packed ) && $bits_remaining > 0; $i++ ) {
+			$bite = $bits_remaining >= 8 ? 8 : $bits_remaining;
+			$mask_byte = ( 0xFF << ( 8 - $bite ) ) & 0xFF;
+			if ( ( ord( $packed[ $i ] ) & $mask_byte ) !== ( ord( $net_packed[ $i ] ) & $mask_byte ) ) {
+				return false;
+			}
+			$bits_remaining -= $bite;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 /**
