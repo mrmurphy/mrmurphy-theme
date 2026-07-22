@@ -58,7 +58,7 @@ class MRMurphy_Authorship_Meta {
 		$normalized = $this->normalize( $validated );
 		$json = wp_json_encode( $normalized );
 
-		if ( empty( $json ) || '[]' === $json ) {
+		if ( empty( $json ) || in_array( $json, array( '[]', '{}' ), true ) ) {
 			delete_post_meta( $post_id, MRMURPHY_AUTHORSHIP_META_KEY );
 		} else {
 			update_post_meta( $post_id, MRMURPHY_AUTHORSHIP_META_KEY, $json );

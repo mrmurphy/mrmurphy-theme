@@ -174,18 +174,15 @@
 
 		function handleSave() {
 			setIsSaving( true );
-			var json = JSON.stringify( localData );
 
-			// Update the block editor's post meta via the editor store.
 			editPost( {
 				meta: (function() {
 					var m = {};
-					m[ metaKey ] = json;
+					m[ metaKey ] = localData;
 					return m;
 				})()
 			} );
 
-			// Save the post (which includes meta) via the editor store.
 			var editorDispatch = data.dispatch( 'core/editor' );
 			if ( editorDispatch && typeof editorDispatch.savePost === 'function' ) {
 				var postId = data.select( 'core/editor' ).getCurrentPostId();
@@ -200,7 +197,6 @@
 					setIsSaving( false );
 				}
 			} else {
-				// Fallback: save via REST API directly.
 				var postId = data.select( 'core/editor' ).getCurrentPostId();
 				if ( postId ) {
 					wp.apiFetch( {
@@ -210,7 +206,7 @@
 							id: postId,
 							meta: (function() {
 								var m = {};
-								m[ metaKey ] = json;
+								m[ metaKey ] = localData;
 								return m;
 							})()
 						}
