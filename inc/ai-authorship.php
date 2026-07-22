@@ -26,6 +26,42 @@ require_once MRMURPHY_AUTHORSHIP_DIR . 'class-render.php';
 require_once MRMURPHY_AUTHORSHIP_DIR . 'class-admin.php';
 
 /**
+ * Register authorship meta for REST API access (wpcom MCP, external tools).
+ */
+add_action( 'init', function () {
+	$categories = array( 'human', 'model', 'agent', 'skill', 'harness' );
+
+	$properties = array();
+	foreach ( $categories as $cat ) {
+		$properties[ $cat ] = array(
+			'type'  => 'array',
+			'items' => array(
+				'type'       => 'object',
+				'properties' => array(
+					'name' => array( 'type' => 'string' ),
+					'link' => array( 'type' => 'string', 'format' => 'uri' ),
+				),
+			),
+		);
+	}
+
+	register_post_meta( 'post', MRMURPHY_AUTHORSHIP_META_KEY, array(
+		'show_in_rest' => array(
+			'schema' => array(
+				'type'       => 'object',
+				'properties' => $properties,
+			),
+		),
+		'type'         => 'object',
+		'default'      => array(),
+		'single'       => true,
+		'auth_callback' => function ( $allowed, $meta_key, $post_id ) {
+			return current_user_can( 'edit_post', $post_id );
+		},
+	) );
+} );
+
+/**
  * Initialize AI-authorship.
  */
 class MRMurphy_Authorship {

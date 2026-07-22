@@ -101,23 +101,25 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
         </div>
     </section>
 
-    <!-- Latest Posts Section -->
+    <!-- Latest Long Posts Section -->
     <?php
-    $latest_posts = new WP_Query( array(
-        'posts_per_page'      => 3,
+    $microblog_category_id = mrmurphy_get_microblog_category_id();
+    $long_posts = new WP_Query( array(
+        'posts_per_page'      => 4,
         'post_status'         => 'publish',
         'ignore_sticky_posts' => true,
+        'category__not_in'    => $microblog_category_id ? array( $microblog_category_id ) : array(),
     ) );
 
-    if ( $latest_posts->have_posts() ) :
+    if ( $long_posts->have_posts() ) :
     ?>
-    <section class="section section--posts" aria-labelledby="posts-heading">
+    <section class="section section--posts" aria-labelledby="long-posts-heading">
         <div class="container">
-            <h2 id="posts-heading" class="section__title">
-                <?php esc_html_e( 'Latest Posts', 'mrmurphy' ); ?>
+            <h2 id="long-posts-heading" class="section__title">
+                <?php esc_html_e( 'Latest Long Posts', 'mrmurphy' ); ?>
             </h2>
             <div class="posts-list">
-                <?php while ( $latest_posts->have_posts() ) : $latest_posts->the_post(); ?>
+                <?php while ( $long_posts->have_posts() ) : $long_posts->the_post(); ?>
                     <?php get_template_part( 'template-parts/content/content', 'excerpt' ); ?>
                 <?php endwhile; ?>
                 <?php wp_reset_postdata(); ?>
@@ -125,7 +127,39 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
 
             <div class="section__footer" style="text-align: center; margin-top: var(--space-8);">
                 <a href="<?php echo esc_url( mrmurphy_get_blog_url() ); ?>" class="btn btn--secondary">
-                    <?php esc_html_e( 'View All Posts', 'mrmurphy' ); ?>
+                    <?php esc_html_e( 'Read More Long Posts', 'mrmurphy' ); ?>
+                </a>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- Short Stuff (Microblogs) Section -->
+    <?php
+    $microblog_posts = new WP_Query( array(
+        'posts_per_page'      => 6,
+        'post_status'         => 'publish',
+        'ignore_sticky_posts' => true,
+        'category_name'       => mrmurphy_microblog_category_slug(),
+    ) );
+
+    if ( $microblog_posts->have_posts() ) :
+    ?>
+    <section class="section section--posts" aria-labelledby="short-posts-heading">
+        <div class="container">
+            <h2 id="short-posts-heading" class="section__title">
+                <?php esc_html_e( 'Short Stuff', 'mrmurphy' ); ?>
+            </h2>
+            <div class="posts-list">
+                <?php while ( $microblog_posts->have_posts() ) : $microblog_posts->the_post(); ?>
+                    <?php get_template_part( 'template-parts/content/content', 'excerpt' ); ?>
+                <?php endwhile; ?>
+                <?php wp_reset_postdata(); ?>
+            </div>
+
+            <div class="section__footer" style="text-align: center; margin-top: var(--space-8);">
+                <a href="<?php echo esc_url( mrmurphy_get_microblog_category_url() ); ?>" class="btn btn--secondary">
+                    <?php esc_html_e( 'Read More Short Stuff', 'mrmurphy' ); ?>
                 </a>
             </div>
         </div>

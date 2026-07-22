@@ -36,8 +36,10 @@ require_once MRMURPHY_DIR . '/inc/template-functions.php';
 // Inline SVG icon registry (used by microblog cards, share sheet, etc.)
 require_once MRMURPHY_DIR . '/inc/icons.php';
 
-// Microblog preview cards and embed facades (presentation; behavior in wp-microblog plugin)
-require_once MRMURPHY_DIR . '/inc/microblog-preview.php';
+// Microblog detection, helpers, and auto-assignment
+require_once MRMURPHY_DIR . '/inc/microblog.php';
+
+// Microblog embed facades (presentation; behavior in wp-microblog plugin)
 require_once MRMURPHY_DIR . '/inc/microblog-embeds.php';
 
 // Mega menu walker
@@ -133,12 +135,24 @@ function mrmurphy_comment_form_submit_field( $submit_field, $args ) {
 add_filter( 'comment_form_submit_field', 'mrmurphy_comment_form_submit_field', 20, 2 );
 
 /**
- * Set posts per page to 10
+ * Set posts per page and exclude microblogs from the main blog feed.
  */
 function mrmurphy_posts_per_page( $query ) {
     if ( ! is_admin() && $query->is_main_query() ) {
         if ( is_home() || is_archive() || is_search() ) {
             $query->set( 'posts_per_page', 10 );
+        }
+
+        if ( is_home() ) {
+            $microblog_category_id = function_exists( 'mrmurphy_get_microblog_category_id' )
+                ? mrmurphy_get_microblog_category_id()
+                : 0;
+
+            if ( $microblog_category_id ) {
+                $excluded = $query->get( 'category__not_in', array() );
+                $excluded[] = $microblog_category_id;
+                $query->set( 'category__not_in', $excluded );
+            }
         }
     }
 }
