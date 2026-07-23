@@ -1,12 +1,3 @@
-/**
- * AI Authorship Gutenberg Editor Panel
- *
- * Uses @wordpress/components globals (no build step).
- * Icons by Heroicons, licensed under MIT (https://heroicons.com).
- *
- * @package mrmurphy-theme
- */
-
 ( function ( wp ) {
 	var element = wp.element;
 	var blockEditor = wp.blockEditor;
@@ -24,18 +15,13 @@
 	var useEffect = element.useEffect;
 	var useMemo = element.useMemo;
 
-	var PanelBody = components.PanelBody;
 	var Button = components.Button;
 	var SelectControl = components.SelectControl;
 	var TextControl = components.TextControl;
-	var IconButton = components.IconButton;
 
-	/**
-	 * Heroicon SVG paths (subset of v2.1.5, MIT licensed).
-	 */
+
 	var heroicons = {
 		'user': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 7.5 17.998A17.933 17.933 0 0 1 4.501 20.118Z"/>',
-		'users': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.96 6.96 0 0 0 4.501 16.5m13.5-3a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.75 12a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z"/>',
 		'cpu-chip': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"/>',
 		'sparkles': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/>',
 		'light-bulb': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18v-1.5m0 0a7.5 7.5 0 1 0-3-5.85m3 5.85V12m-6.375 0h12.75m-12.75 3h12.75M12 3v1.5"/>',
@@ -45,9 +31,6 @@
 		'question-mark-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 3.758a4.496 4.496 0 0 1 4.242 7.407c-1.056.807-2.59.807-3.646 0a2.248 2.248 0 0 0-3.476.952l-.152.457a1.124 1.124 0 0 0 1.736 1.278l.213-.154a.75.75 0 0 1 .933 1.178l-.213.154a2.625 2.625 0 0 1-4.061-2.993l.152-.457a3.748 3.748 0 0 1 5.772-1.988ZM10.5 15.75a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0Z"/>',
 	};
 
-	/**
-	 * Render a heroicon as a small SVG.
-	 */
 	function Heroicon( props ) {
 		var name = props.name || 'question-mark-circle';
 		var path = heroicons[ name ] || heroicons['question-mark-circle'];
@@ -66,9 +49,6 @@
 		} );
 	}
 
-	/**
-	 * Main sidebar panel component.
-	 */
 	function AuthorshipPanel() {
 		var metaKey = mrmurphyAuthorship.meta_key;
 		var categories = mrmurphyAuthorship.categories || {};
@@ -76,88 +56,62 @@
 		var _wp$data = data,
 			useSelect = _wp$data.useSelect,
 			useDispatch = _wp$data.useDispatch;
-		var _useState1 = useState( {} ),
-			localData = _useState1[ 0 ],
-			setLocalData = _useState1[ 1 ];
-		var _useState2 = useState( false ),
-			isSaving = _useState2[ 0 ],
-			setIsSaving = _useState2[ 1 ];
-		var _useState3 = useState( { name: '', link: '' } ),
-			newEntry = _useState3[ 0 ],
-			setNewEntry = _useState3[ 1 ];
-		var _useState4 = useState( '' ),
-			selectedCategory = _useState4[ 0 ],
-			setSelectedCategory = _useState4[ 1 ];
 
-		// Read meta from block editor store.
+		var _ls = useState( {} ),
+			localData = _ls[ 0 ],
+			setLocalData = _ls[ 1 ];
+		var _sv = useState( false ),
+			isSaving = _sv[ 0 ],
+			setIsSaving = _sv[ 1 ];
+		var _ne = useState( { name: '', link: '' } ),
+			newEntry = _ne[ 0 ],
+			setNewEntry = _ne[ 1 ];
+		var _sc = useState( '' ),
+			selectedCategory = _sc[ 0 ],
+			setSelectedCategory = _sc[ 1 ];
+
 		var authorshipMeta = useSelect( function ( select ) {
-			var postMeta = select( 'core/editor' ).getEditPost();
-			if ( ! postMeta || ! postMeta.meta ) {
-				return '{}';
+			var post = select( 'core/editor' ).getCurrentPost();
+			if ( ! post || ! post.meta ) {
+				return {};
 			}
-			return postMeta.meta[ metaKey ] || '{}';
+			var val = post.meta[ metaKey ];
+			if ( typeof val === 'string' ) {
+				try { val = JSON.parse( val ); } catch ( e ) { val = {}; }
+			}
+			if ( typeof val !== 'object' || val === null || Array.isArray( val ) ) {
+				val = {};
+			}
+			return val;
 		}, [ metaKey ] );
 
 		var editPost = useDispatch( 'core/editor' ).editPost;
 
-		// Initialize local data from post meta.
 		useEffect( function () {
-			try {
-				var parsed = JSON.parse( authorshipMeta );
-				if ( typeof parsed !== 'object' || parsed === null || Array.isArray( parsed ) ) {
-					parsed = {};
-				}
-				setLocalData( parsed );
-			} catch ( e ) {
-				setLocalData( {} );
-			}
+			setLocalData( authorshipMeta );
 		}, [ authorshipMeta ] );
 
-		// Get counts.
-		var counts = useMemo( function () {
-			var c = {};
-			Object.keys( localData ).forEach( function ( key ) {
-				if ( Array.isArray( localData[ key ] ) ) {
-					c[ key ] = localData[ key ].length;
-				}
-			} );
-			return c;
-		}, [ localData ] );
+		var catKeys = Object.keys( categories );
+		var catOptions = catKeys.map( function ( key ) {
+			return { value: key, label: categories[ key ].label };
+		} );
 
-		var total = useMemo( function () {
-			return Object.values( counts ).reduce( function ( sum, n ) { return sum + n; }, 0 );
-		}, [ counts ] );
-
-		// Auto-select first category with data, or first available.
-		useEffect( function () {
-			if ( ! selectedCategory ) {
-				var firstWithEntries = Object.keys( counts ).find( function ( k ) { return counts[ k ] > 0; } );
-				if ( firstWithEntries ) {
-					setSelectedCategory( firstWithEntries );
-				} else {
-					var firstCat = Object.keys( categories )[ 0 ];
-					if ( firstCat ) {
-						setSelectedCategory( firstCat );
-					}
-				}
-			}
-		}, [ categories, counts ] );
+		if ( ! selectedCategory && catKeys.length > 0 ) {
+			setSelectedCategory( catKeys[ 0 ] );
+		}
 
 		function handleAdd() {
 			if ( ! selectedCategory || ! newEntry.name.trim() ) {
 				return;
 			}
-
 			var updated = Object.assign( {}, localData );
 			if ( ! Array.isArray( updated[ selectedCategory ] ) ) {
 				updated[ selectedCategory ] = [];
 			}
-
 			var entry = { name: newEntry.name.trim() };
 			if ( newEntry.link && newEntry.link.trim() ) {
 				entry.link = newEntry.link.trim();
 			}
-
 			updated[ selectedCategory ].push( entry );
 			setLocalData( updated );
 			setNewEntry( { name: '', link: '' } );
@@ -172,189 +126,87 @@
 			setLocalData( updated );
 		}
 
+		function handleEditField( category, index, field, value ) {
+			var updated = Object.assign( {}, localData );
+			updated[ category ] = updated[ category ].slice();
+			updated[ category ][ index ] = Object.assign( {}, updated[ category ][ index ] );
+			updated[ category ][ index ][ field ] = value;
+			setLocalData( updated );
+		}
+
 		function handleSave() {
 			setIsSaving( true );
-
-			editPost( {
-				meta: (function() {
-					var m = {};
-					m[ metaKey ] = localData;
-					return m;
-				})()
-			} );
-
-			var editorDispatch = data.dispatch( 'core/editor' );
-			if ( editorDispatch && typeof editorDispatch.savePost === 'function' ) {
-				var postId = data.select( 'core/editor' ).getCurrentPostId();
-				if ( postId ) {
-					editorDispatch.savePost().then( function () {
-						setIsSaving( false );
-					} ).catch( function ( error ) {
-						console.error( 'AI Authorship save error:', error );
-						setIsSaving( false );
-					} );
-				} else {
-					setIsSaving( false );
-				}
-			} else {
-				var postId = data.select( 'core/editor' ).getCurrentPostId();
-				if ( postId ) {
-					wp.apiFetch( {
-						path: '/wp/v2/posts/' + postId + '?force=true',
-						method: 'POST',
-						data: {
-							id: postId,
-							meta: (function() {
-								var m = {};
-								m[ metaKey ] = localData;
-								return m;
-							})()
-						}
-					} ).then( function () {
-						setIsSaving( false );
-					} ).catch( function ( error ) {
-						console.error( 'AI Authorship save error:', error );
-						setIsSaving( false );
-					} );
-				} else {
-					setIsSaving( false );
-				}
-			}
+			var meta = {};
+			meta[ metaKey ] = localData;
+			editPost( { meta: meta } );
+			setIsSaving( false );
 		}
 
-		if ( total === 0 ) {
-			return createElement( 'div', { className: 'authorship-empty' },
-				createElement( 'p', null, __( 'Add attribution for AI-generated or AI-assisted content.', 'mrmurphy-theme' ) ),
-				createElement( 'p', { className: 'heroicon-attribution' },
-					createElement( 'small', null, createInterpolateElement(
-						__( 'Icons by <a href="https://heroicons.com" target="_blank" rel="noopener">Heroicons</a>, MIT License.', 'mrmurphy-theme' ),
-						{ a: createElement( 'a', { href: 'https://heroicons.com', target: '_blank', rel: 'noopener' } ) }
-					) )
-				),
-				createElement( 'div', { className: 'authorship-add-entry' },
-					createElement( SelectControl, {
-						label: __( 'Category', 'mrmurphy-theme' ),
-						value: selectedCategory,
-						options: Object.keys( categories ).map( function ( key ) {
-							return { value: key, label: categories[ key ].label };
-						} ),
-						onChange: function ( val ) { setSelectedCategory( val ); },
+		var entryElements = [];
+		Object.keys( localData ).forEach( function ( category ) {
+			var entries = localData[ category ];
+			if ( ! Array.isArray( entries ) || entries.length === 0 ) return;
+			var catConfig = categories[ category ] || { label: category, icon: 'question-mark-circle', color: 'var(--color-purple)' };
+			var listItems = entries.map( function ( entry, index ) {
+				return createElement( 'li', { className: 'authorship-entry-item', key: index },
+					createElement( TextControl, {
+						value: entry.name || '',
+						onChange: function ( val ) { handleEditField( category, index, 'name', val ); },
+						placeholder: 'Name',
+						style: { flex: 1, margin: 0 },
 					} ),
 					createElement( TextControl, {
-						label: __( 'Name', 'mrmurphy-theme' ),
-						value: newEntry.name,
-						onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { name: val } ) ); },
-						placeholder: __( 'e.g., GPT-4, Claude, Human Author', 'mrmurphy-theme' ),
-						help: __( 'The name of the contributor.', 'mrmurphy-theme' ),
-					} ),
-					createElement( TextControl, {
-						label: __( 'Link', 'mrmurphy-theme' ),
-						value: newEntry.link,
-						onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { link: val } ) ); },
+						value: entry.link || '',
+						onChange: function ( val ) { handleEditField( category, index, 'link', val ); },
 						placeholder: 'https://',
-						help: __( 'Optional URL.', 'mrmurphy-theme' ),
 						type: 'url',
+						style: { flex: 0.6, margin: 0, minWidth: '100px' },
 					} ),
 					createElement( Button, {
-						variant: 'primary',
-						onClick: handleAdd,
-						disabled: ! newEntry.name.trim(),
-					}, __( 'Add', 'mrmurphy-theme' ) )
+						icon: 'trash',
+						label: 'Remove',
+						onClick: function () { handleRemove( category, index ); },
+						className: 'authorship-remove-btn',
+						size: 'compact',
+						variant: 'secondary',
+						isDestructive: true,
+					} )
+				);
+			} );
+			entryElements.push(
+				createElement( 'div', { className: 'authorship-category-block', key: category },
+					createElement( 'div', { className: 'authorship-category-header', style: { '--cat-color': catConfig.color } },
+						createElement( Heroicon, { name: catConfig.icon, color: catConfig.color, size: 16 } ),
+						createElement( 'span', null, catConfig.label ),
+						createElement( 'span', { className: 'authorship-count-badge' }, entries.length )
+					),
+					createElement( 'ul', { className: 'authorship-entry-list' }, listItems )
 				)
 			);
-		}
+		} );
 
-		return createElement( Fragment, null,
-			createElement( 'p', { className: 'heroicon-attribution' },
-				createElement( 'small', null, createInterpolateElement(
-					__( 'Icons by <a href="https://heroicons.com" target="_blank" rel="noopener">Heroicons</a>, MIT License.', 'mrmurphy-theme' ),
-					{ a: createElement( 'a', { href: 'https://heroicons.com', target: '_blank', rel: 'noopener' } ) }
-				) )
+		return createElement( 'div', null,
+			entryElements.length > 0 ? createElement( 'div', { className: 'authorship-entries' }, entryElements ) : null,
+			createElement( 'div', { className: 'authorship-add-entry' },
+				createElement( SelectControl, { label: 'Category', value: selectedCategory, options: catOptions, onChange: function ( val ) { setSelectedCategory( val ); } } ),
+				createElement( TextControl, { label: 'Name', value: newEntry.name, onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { name: val } ) ); }, placeholder: 'e.g. GPT-4, Human Author' } ),
+				createElement( TextControl, { label: 'Link', value: newEntry.link, onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { link: val } ) ); }, placeholder: 'https://', type: 'url' } ),
+				createElement( Button, { variant: 'primary', onClick: handleAdd, disabled: ! newEntry.name.trim(), style: { width: '100%' } }, 'Add' ),
 			),
-			createElement( 'div', { className: 'authorship-entries' },
-				Object.keys( localData ).map( function ( category ) {
-					var entries = localData[ category ];
-					if ( ! Array.isArray( entries ) || entries.length === 0 ) {
-						return null;
-					}
-
-					var catConfig = categories[ category ] || { label: category, icon: 'question-mark-circle', color: 'var(--color-purple)' };
-
-					return createElement( 'div', { className: 'authorship-category-block', key: category },
-						createElement( 'div', {
-							className: 'authorship-category-header',
-							style: { '--cat-color': catConfig.color },
-						},
-							createElement( Heroicon, { name: catConfig.icon, color: catConfig.color, size: 16 } ),
-							createElement( 'span', null, catConfig.label ),
-							createElement( 'span', { className: 'authorship-count-badge' }, entries.length )
-						),
-						createElement( 'ul', { className: 'authorship-entry-list' },
-							entries.map( function ( entry, index ) {
-								return createElement( 'li', { className: 'authorship-entry-item', key: index },
-									createElement( 'span', { className: 'authorship-entry-name' }, entry.name ),
-									entry.link ? createElement( 'a', {
-										href: entry.link,
-										target: '_blank',
-										rel: 'noopener',
-										className: 'authorship-entry-link',
-										style: { fontSize: '11px' },
-									}, entry.link ) : null,
-									createElement( IconButton, {
-										icon: 'trash',
-										label: __( 'Remove', 'mrmurphy-theme' ),
-										onClick: function () { handleRemove( category, index ); },
-										className: 'authorship-remove-btn',
-										size: 'compact',
-									} )
-								);
-							} )
-						),
-						createElement( 'div', { className: 'authorship-add-entry' },
-							createElement( TextControl, {
-								label: __( 'Add to %s', 'mrmurphy-theme' ).replace( '%s', catConfig.label ),
-								value: newEntry.name,
-								onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { name: val } ) ); },
-								placeholder: __( 'New name...', 'mrmurphy-theme' ),
-								onKeyDown: function ( e ) { if ( e.key === 'Enter' ) { e.preventDefault(); handleAdd(); } },
-							} ),
-							createElement( TextControl, {
-								value: newEntry.link,
-								onChange: function ( val ) { setNewEntry( Object.assign( {}, newEntry, { link: val } ) ); },
-								placeholder: 'https://',
-								type: 'url',
-								onKeyDown: function ( e ) { if ( e.key === 'Enter' ) { e.preventDefault(); handleAdd(); } },
-							} ),
-							createElement( Button, {
-								variant: 'secondary',
-								onClick: handleAdd,
-								disabled: ! newEntry.name.trim(),
-								style: { marginTop: '4px' },
-							}, __( 'Add', 'mrmurphy-theme' ) )
-						)
-					);
-				} )
-			),
-			createElement( Button, {
-				variant: 'primary',
-				onClick: handleSave,
-				isBusy: isSaving,
-				disabled: isSaving,
-				style: { marginTop: '12px', width: '100%' },
-			}, isSaving ? __( 'Saving...', 'mrmurphy-theme' ) : __( 'Save', 'mrmurphy-theme' ) )
+			createElement( Button, { variant: 'primary', onClick: handleSave, isBusy: isSaving, disabled: isSaving, style: { marginTop: '12px', width: '100%' } }, isSaving ? 'Saving...' : 'Save' )
 		);
 	}
 
-	/**
-	 * Register the sidebar panel.
-	 */
 	function registerAuthorshipPanel() {
-		blocks.registerPlugin( 'mrmurphy-authorship-panel', {
+		var PluginDocumentSettingPanel = ( wp.editor && wp.editor.PluginDocumentSettingPanel ) || wp.editPost.PluginDocumentSettingPanel;
+
+		wp.plugins.registerPlugin( 'mrmurphy-authorship-panel', {
 			render: function () {
-				return createElement( PanelBody, {
+				return createElement( PluginDocumentSettingPanel, {
+					name: 'mrmurphy-authorship',
 					title: __( 'AI Authorship', 'mrmurphy-theme' ),
-					initialOpen: false,
 					className: 'mrmurphy-authorship-panel',
+					icon: 'lightbulb',
 				},
 					createElement( AuthorshipPanel, null )
 				);

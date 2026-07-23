@@ -28,8 +28,6 @@ class MRMurphy_Authorship_Admin {
 		$this->render     = $render;
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_editor_assets' ) );
-		add_action( 'add_meta_boxes', array( $this, 'add_legacy_meta_box' ) );
-		add_action( 'save_post', array( $this, 'save_legacy_meta_box' ), 20, 1 );
 	}
 
 	/**
@@ -60,7 +58,7 @@ class MRMurphy_Authorship_Admin {
 		wp_enqueue_script(
 			'mrmurphy-authorship-editor',
 			get_theme_file_uri( '/assets/js/ai-authorship-editor.js' ),
-			array_merge( array( 'wp-block-editor', 'wp-blocks', 'wp-components', 'wp-compose', 'wp-element' ), $deps ),
+			array_merge( array( 'wp-block-editor', 'wp-blocks', 'wp-components', 'wp-compose', 'wp-element', 'wp-plugins', 'wp-editor' ), $deps ),
 			$version,
 			true
 		);

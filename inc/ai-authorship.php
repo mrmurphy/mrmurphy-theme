@@ -52,9 +52,10 @@ add_action( 'init', function () {
 				'properties' => $properties,
 			),
 		),
-		'type'         => 'object',
-		'default'      => array(),
-		'single'       => true,
+		'type'          => 'object',
+		'default'       => array(),
+		'single'        => true,
+		'auth_callback' => function () { return current_user_can( 'edit_posts' ); },
 	) );
 } );
 
