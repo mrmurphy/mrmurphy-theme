@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MRMURPHY_AUTHORSHIP_VERSION', '1.0.0' );
+define( 'MRMURPHY_AUTHORSHIP_VERSION', '1.0.1' );
 define( 'MRMURPHY_AUTHORSHIP_DIR', get_theme_file_path( '/inc/ai-authorship/' ) );
 define( 'MRMURPHY_AUTHORSHIP_URL', get_theme_file_uri( '/inc/ai-authorship/' ) );
 define( 'MRMURPHY_AUTHORSHIP_META_KEY', '_mrmurphy_authorship' );
