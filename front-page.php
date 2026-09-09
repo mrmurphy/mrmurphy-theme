@@ -370,19 +370,24 @@ $newsletter_shortcode = get_theme_mod( 'mrmurphy_newsletter_form', '' );
     </section>
 
     <!-- Newsletter Section -->
-    <?php if ( $newsletter_shortcode ) : ?>
     <section class="section section--newsletter" aria-labelledby="newsletter-heading">
         <div class="container">
             <h2 id="newsletter-heading" class="section__title">
                 <?php esc_html_e( 'Stay Updated', 'mrmurphy' ); ?>
             </h2>
 
-            <div class="newsletter-form-wrapper">
-                <?php echo do_shortcode( $newsletter_shortcode ); ?>
-            </div>
+            <?php if ( $newsletter_shortcode ) : ?>
+                <div class="newsletter-form-wrapper">
+                    <?php echo do_shortcode( $newsletter_shortcode ); ?>
+                </div>
+            <?php else : ?>
+                <p class="newsletter-signup-intro">
+                    <?php esc_html_e( 'Occasional notes on code, craft, and what I am building. Straight to your inbox.', 'mrmurphy' ); ?>
+                </p>
+                <?php get_template_part( 'template-parts/newsletter-form' ); ?>
+            <?php endif; ?>
         </div>
     </section>
-    <?php endif; ?>
 </div>
 
 <?php get_template_part( 'template-parts/footer' ); ?>
