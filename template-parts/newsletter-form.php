@@ -70,6 +70,17 @@ $source = esc_url_raw(
 	<input type="hidden" name="plan" value="newsletter" />
 	<input type="hidden" name="display" value="alternate" />
 	<input type="hidden" name="source" value="<?php echo esc_url( $source ); ?>" />
+	<?php
+	/*
+	 * If present, post_id becomes the post-confirmation landing spot:
+	 * the activation link in the email carries redirect_to_blog_post_id,
+	 * and WordPress.com sends the newly-confirmed reader there.
+	 */
+	$landing = get_page_by_path( 'youre-in' );
+	if ( $landing instanceof WP_Post ) :
+		?>
+		<input type="hidden" name="post_id" value="<?php echo esc_attr( $landing->ID ); ?>" />
+	<?php endif; ?>
 
 	<p class="newsletter-signup__note">
 		<?php esc_html_e( 'No spam. Unsubscribe anytime.', 'mrmurphy' ); ?>
