@@ -113,7 +113,7 @@ $mb_attrs    = $is_microblog
 		<?php endif; ?>
 
 		<div class="post-preview__content">
-			<h2 id="<?php echo esc_attr( $preview_id ); ?>" class="post-preview__title"><?php the_title(); ?></h2>
+			<h2 id="<?php echo esc_attr( $preview_id ); ?>" class="post-preview__title"><?php echo mrmurphy_ai_title_icon( get_the_ID() ); ?><?php the_title(); ?></h2>
 
 			<div class="<?php echo esc_attr( $meta_class ); ?>">
 				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">

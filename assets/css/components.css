@@ -1931,3 +1931,10 @@ a:hover .featured-image--square,
   opacity: 0.7;
   pointer-events: none;
 }
+
+/* Robot-face icon shown before the title of posts attributed only to AI */
+.ai-title-robot {
+  vertical-align: -0.14em;
+  margin-right: 0.35em;
+  color: var(--color-pink);
+}

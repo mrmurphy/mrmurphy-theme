@@ -38,7 +38,7 @@ $display_category = ! empty( $display_categories ) ? reset( $display_categories 
 
             <div class="post-header__content">
                 <?php if ( $has_title ) : ?>
-                    <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+                    <?php the_title( '<h1 class="entry-title">' . mrmurphy_ai_title_icon( get_the_ID() ), '</h1>' ); ?>
                 <?php endif; ?>
 
                 <div class="post-meta">
@@ -76,7 +76,7 @@ $display_category = ! empty( $display_categories ) ? reset( $display_categories 
         <!-- Standard header without featured image -->
         <header class="entry-header <?php echo $is_microblog ? 'entry-header--microblog' : ''; ?> container">
             <?php if ( $has_title ) : ?>
-                <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+                <?php the_title( '<h1 class="entry-title">' . mrmurphy_ai_title_icon( get_the_ID() ), '</h1>' ); ?>
             <?php endif; ?>
 
             <div class="post-meta">

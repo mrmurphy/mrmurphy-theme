@@ -13,7 +13,7 @@ if ( is_singular() ) :
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
     <header class="entry-header">
-        <?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+        <?php the_title( '<h1 class="entry-title">' . mrmurphy_ai_title_icon( get_the_ID() ), '</h1>' ); ?>
 
         <div class="post-meta">
             <span class="post-meta__item">

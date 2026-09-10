@@ -38,6 +38,63 @@ class MRMurphy_Authorship_Render {
 	}
 
 	/**
+	 * Whether a post credits only AI contributors: no human entry, but at
+	 * least one AI category (model, agent, skill, harness) is set.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool
+	 */
+	public static function is_ai_only( $post_id ) {
+		if ( ! $post_id ) {
+			return false;
+		}
+
+		$meta = new MRMurphy_Authorship_Meta();
+		$data = $meta->get( $post_id );
+
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			return false;
+		}
+
+		if ( ! empty( $data['human'] ) && is_array( $data['human'] ) && ! empty( $data['human'][0]['name'] ) ) {
+			return false;
+		}
+
+		foreach ( array( 'model', 'agent', 'skill', 'harness' ) as $ai_category ) {
+			if ( ! empty( $data[ $ai_category ] ) && is_array( $data[ $ai_category ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Cute robot-face SVG for titles of posts attributed only to AI.
+	 *
+	 * Uses currentColor so it follows the theme's light/dark tokens; the
+	 * pink accent and spacing are applied in CSS (ai-title-robot class).
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string SVG markup, or empty string for posts with a human.
+	 */
+	public static function title_icon( $post_id ) {
+		if ( ! self::is_ai_only( $post_id ) ) {
+			return '';
+		}
+
+		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="ai-title-robot">'
+			. '<rect x="3.8" y="8.2" width="16.4" height="10.8" rx="3.2"/>'
+			. '<path d="M2 12.6h1.8"/><path d="M20.2 12.6h1.8"/>'
+			. '<path d="M12 8.2V5.6"/>'
+			. '<circle cx="12" cy="4.4" r="1.5" fill="currentColor" stroke="none"/>'
+			. '<circle cx="9" cy="13" r="1.15" fill="currentColor" stroke="none"/>'
+			. '<circle cx="15" cy="13" r="1.15" fill="currentColor" stroke="none"/>'
+			. '<path d="M9.2 16.2c1.6 1.4 4 1.4 5.6 0"/>'
+			. '</svg>';
+	}
+
+	/**
 	 * Render the authorship pill button and details section.
 	 *
 	 * @param int $post_id Post ID.

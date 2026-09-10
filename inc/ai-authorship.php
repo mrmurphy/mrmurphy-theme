@@ -94,3 +94,17 @@ new MRMurphy_Authorship();
 function mrmurphy_authorship_render( $post_id ) {
 	MRMurphy_Authorship_Render::render_post( $post_id );
 }
+
+/**
+ * Robot-face SVG shown before titles of posts attributed only to AI.
+ *
+ * @param int $post_id Post ID.
+ * @return string SVG markup, or empty string for human posts.
+ */
+function mrmurphy_ai_title_icon( $post_id ) {
+	if ( class_exists( 'MRMurphy_Authorship_Render' ) ) {
+		return MRMurphy_Authorship_Render::title_icon( $post_id );
+	}
+
+	return '';
+}
