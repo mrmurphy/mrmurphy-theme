@@ -45,8 +45,18 @@ class MRMurphy_Authorship_Render {
 	public function render( $post_id ) {
 		$data = $this->meta->get( $post_id );
 
-		// If no human author is explicitly set, add the WP post author as human.
-		if ( empty( $data['human'] ) || ! is_array( $data['human'] ) || empty( $data['human'][0]['name'] ) ) {
+		// If no human author is explicitly set, add the WP post author as human
+		// — but only when the post carries no AI attribution. A post that
+		// credits AI contributors with an empty human entry stays human-less.
+		$has_ai_contribution = false;
+		foreach ( array( 'model', 'agent', 'skill', 'harness' ) as $ai_category ) {
+			if ( ! empty( $data[ $ai_category ] ) && is_array( $data[ $ai_category ] ) ) {
+				$has_ai_contribution = true;
+				break;
+			}
+		}
+
+		if ( ! $has_ai_contribution && ( empty( $data['human'] ) || ! is_array( $data['human'] ) || empty( $data['human'][0]['name'] ) ) ) {
 			$author_id = get_post_field( 'post_author', $post_id );
 			if ( $author_id > 0 ) {
 				$author = get_userdata( $author_id );
