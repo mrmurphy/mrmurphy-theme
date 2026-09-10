@@ -20,6 +20,7 @@ JS_SOURCES=(
   "${ASSETS}/js/navigation.js"
   "${ASSETS}/js/theme-toggle.js"
   "${ASSETS}/js/embed-facade.js"
+  "${ASSETS}/js/newsletter.js"
   "${ASSETS}/js/microblog-actions.js"
 )
 

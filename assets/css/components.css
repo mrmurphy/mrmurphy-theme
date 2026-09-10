@@ -1925,3 +1925,9 @@ a:hover .featured-image--square,
     width: 100%;
   }
 }
+
+/* Button loading state while the subscribe request is in flight */
+.newsletter-signup__submit[aria-busy='true'] {
+  opacity: 0.7;
+  pointer-events: none;
+}

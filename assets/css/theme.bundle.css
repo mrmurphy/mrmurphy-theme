@@ -3417,6 +3417,12 @@ a:hover .featured-image--square,
   }
 }
 
+/* Button loading state while the subscribe request is in flight */
+.newsletter-signup__submit[aria-busy='true'] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 /* --- navigation.css --- */
 /**
  * Navigation styles - Header, menu, mega menu
