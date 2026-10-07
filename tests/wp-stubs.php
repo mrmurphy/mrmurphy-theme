@@ -75,3 +75,40 @@ if ( ! function_exists( 'get_the_ID' ) ) {
 		return '';
 	}
 }
+
+if ( ! function_exists( 'esc_html' ) ) {
+	function esc_html( $text ) {
+		return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $thing ) {
+		return false;
+	}
+	function wp_remote_get( $url, $args = array() ) {
+		return array_key_exists( '__test_http_response', $GLOBALS ) && null !== $GLOBALS['__test_http_response']
+			? $GLOBALS['__test_http_response']
+			: array( 'response' => array( 'code' => 404 ), 'body' => '' );
+	}
+	function wp_remote_retrieve_response_code( $response ) {
+		return $response['response']['code'] ?? 0;
+	}
+	function wp_remote_retrieve_body( $response ) {
+		return $response['body'] ?? '';
+	}
+	function get_transient( $key ) {
+		return $GLOBALS['__test_transients'][ $key ] ?? false;
+	}
+	function set_transient( $key, $value, $ttl = 0 ) {
+		$GLOBALS['__test_transients'][ $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+}
+
+$GLOBALS['__test_transients'] = array();
+$GLOBALS['__test_http_response'] = null;

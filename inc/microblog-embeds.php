@@ -120,6 +120,124 @@ function mrmurphy_get_embed_aspect_classes( $block ) {
 }
 
 /**
+ * Fetch note data for a Substack note share URL.
+ *
+ * Server-side only, cached in a transient (6h) so repeated page renders do
+ * not hammer Substack. Returns an array with any of:
+ * - 'handle'    string  Author handle (from the URL, always present).
+ * - 'note_id'   string  Note id (from the URL, always present).
+ * - 'title'     string  og:title (author name) or ''.
+ * - 'text'      string  og:description (note text excerpt) or ''.
+ * - 'image_url' string  og:image (substackcdn poster/avatar) or ''.
+ *
+ * A network failure degrades to URL-derived fields only; the facade still
+ * renders as a clean link-card (graceful fallback).
+ *
+ * @param string $url Note URL.
+ * @return array
+ */
+function mrmurphy_fetch_substack_note_data( $url ) {
+	$data = array(
+		'handle'    => '',
+		'note_id'   => '',
+		'title'     => '',
+		'text'      => '',
+		'image_url' => '',
+	);
+
+	if ( preg_match( '#^https?://(?:www\.)?substack\.com/@([\w.-]+)/note/(c-[\w-]+)(?:[/?\#]|$)#i', (string) $url, $m ) ) {
+		$data['handle']  = $m[1];
+		$data['note_id'] = $m[2];
+	}
+
+	if ( '' === $data['handle'] ) {
+		return $data;
+	}
+
+	if ( is_string( $data['note_id'] ) && false !== strpos( $data['note_id'], "'" ) ) {
+		return $data; // Never happen with the regex above; safety net only.
+	}
+
+	$has_wp = function_exists( 'get_transient' ) && function_exists( 'set_transient' ) && function_exists( 'wp_remote_get' ) && null !== $data['handle'];
+	if ( ! $has_wp ) {
+		return $data;
+	}
+
+	$cache_key = 'mrmurphy_substack_' . md5( $data['handle'] . ':' . $data['note_id'] );
+	$cached    = get_transient( $cache_key );
+	if ( is_array( $cached ) ) {
+		return $cached;
+	}
+
+	$response = wp_remote_get(
+		"https://substack.com/@{$data['handle']}/note/{$data['note_id']}",
+		array( 'timeout' => 5 )
+	);
+
+	if ( ! is_wp_error( $response ) && 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
+		$body = (string) wp_remote_retrieve_body( $response );
+
+		foreach ( array(
+			'title'     => '#<meta[^>]+property=["\']og:title["\'][^>]+content=["\']([^"\']+)["\']#i',
+			'text'      => '#<meta[^>]+property=["\']og:description["\'][^>]+content=["\']([^"\']+)["\']#i',
+			'image_url' => '#<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']#i',
+		) as $field => $pattern ) {
+			if ( preg_match( $pattern, $body, $m2 ) ) {
+				$data[ $field ] = html_entity_decode( $m2[1], ENT_QUOTES | ENT_XML1, 'UTF-8' );
+			}
+		}
+	}
+
+	// Cache even the failure case so a down Substack doesn't cause per-render fetches.
+	set_transient( $cache_key, $data, 6 * HOUR_IN_SECONDS );
+
+	return $data;
+}
+
+/**
+ * Render a Substack note quote-card facade for preview cards.
+ *
+ * A plain outbound link-card (avatar/poster, name, note text); engaging with
+ * the note happens on Substack — there is no iframe embed for notes.
+ *
+ * @param string $url Note URL.
+ * @return string
+ */
+function mrmurphy_render_substack_note_facade( $url ) {
+	$note = mrmurphy_fetch_substack_note_data( $url );
+
+	$name_clean = '' !== (string) $note['title'] ? $note['title'] : '@' . $note['handle'];
+	$text_clean = wp_strip_all_tags( (string) $note['text'] );
+
+	// Trim to a readable excerpt on a word boundary.
+	if ( mb_strlen( $text_clean ) > 280 ) {
+		$text_clean = rtrim( mb_substr( $text_clean, 0, 280 ) ) . '…';
+	}
+
+	$path = sprintf( 'https://substack.com/@%s/note/%s', rawurlencode( (string) $note['handle'] ), rawurlencode( (string) $note['note_id'] ) );
+
+	ob_start();
+	?>
+	<figure class="wp-block-embed embed-facade embed-facade--substack is-provider-substack" data-embed-src="substack-note:<?php echo esc_attr( (string) $note['note_id'] ); ?>">
+		<a class="embed-facade--substack__card" href="<?php echo esc_url( $path ); ?>" target="_blank" rel="noopener noreferrer nofollow">
+			<?php if ( '' !== $note['image_url'] ) : ?>
+				<span class="embed-facade--substack__poster" aria-hidden="true">
+					<img src="<?php echo esc_url( $note['image_url'] ); ?>" alt="" loading="lazy" decoding="async" />
+				</span>
+			<?php endif; ?>
+			<span class="embed-facade--substack__meta">
+				<span class="embed-facade--substack__name"><?php echo esc_html( $name_clean ); ?></span>
+				<?php if ( '' !== $text_clean ) : ?>
+					<span class="embed-facade--substack__text"><?php echo esc_html( $text_clean ); ?></span>
+				<?php endif; ?>
+				<span class="embed-facade--substack__brand" aria-hidden="true">Substack note ↗</span>
+			</span>
+		</a>
+	</figure>
+	<?php
+	return (string) ob_get_clean();
+}
+/**
  * Built-in embed provider registry.
  *
  * Each provider handler:
@@ -183,6 +301,21 @@ function mrmurphy_get_embed_provider_registry() {
 				);
 			},
 			'render' => $youtube_render,
+		),
+		'substack' => array(
+			'match'  => static function ( $url ) {
+				if ( ! preg_match( '#^https?://(?:www\.)?substack\.com/@([\w.-]+)/note/(c-[\w-]+)(?:[/?\#]|$)#i', (string) $url, $m ) ) {
+					return null;
+				}
+
+				return array(
+					'handle'  => $m[1],
+					'note_id' => $m[2],
+				);
+			},
+			'render' => static function ( array $match, $url ) {
+				return mrmurphy_render_substack_note_facade( $url );
+			},
 		),
 	);
 
