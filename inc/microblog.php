@@ -192,6 +192,7 @@ function mrmurphy_get_microblog_preview_content( $post_id = null ) {
 
 	mrmurphy_in_microblog_preview( true );
 	$rendered = apply_filters( 'the_content', (string) $content );
+	$rendered = mrmurphy_facade_links_in_preview_content( $rendered );
 	mrmurphy_in_microblog_preview( false );
 
 	return $rendered;
