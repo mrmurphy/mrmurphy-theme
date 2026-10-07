@@ -4613,6 +4613,52 @@ button:active {
   border: 0;
 }
 
+/* ===== MEDIA LETTERBOX (preview cards) =====
+ * Portrait images/videos run away at full card width. Cap the height, keep the
+ * native aspect ratio, center the asset, and letterbox it in a full-width band
+ * sized to the slot the media would have occupied. Same 60vh cap as embeds. */
+
+.mb-card__body :is(figure.wp-block-image, figure.wp-block-video) {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface-inset, #221f22) 88%, #000);
+  overflow: hidden;
+}
+
+.mb-card__body :is(figure.wp-block-image, figure.wp-block-video) :is(img, video) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 60vh;
+}
+
+/* Naked img block without a figure wrapper: same cap, centered. */
+.mb-card__body > img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 60vh;
+  margin-inline: auto;
+  border-radius: 12px;
+}
+
+/* Galleries: cap each item but keep the gallery lane full width. */
+.mb-card__body figure.wp-block-gallery {
+  margin: 8px 0;
+}
+
+.mb-card__body .wp-block-gallery :is(img, video) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 60vh;
+}
+
 /* ===== ACTION ROW ===== */
 
 .mb-card__actions {
