@@ -238,7 +238,7 @@ figure:has(> table) {
      out-specifies the WP-core .wp-block-table .has-fixed-layout rule
      (table-layout: fixed), so it is re-rewritten explicitly. */
   figure:has(> table) > table,
-  figure:has(> table) > table.has-fixed-layout,
+  figure.wp-block-table > table.has-fixed-layout,
   .table-scroll > table {
     width: auto;
     max-width: none;
