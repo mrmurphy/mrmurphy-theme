@@ -234,20 +234,29 @@ figure:has(> table) {
 
 @media (max-width: 768px) {
   /* Let the table keep its natural width so cells stay readable;
-     the parent scrolls horizontally. */
+     the parent scrolls horizontally. The .has-fixed-layout variant
+     out-specifies the WP-core .wp-block-table .has-fixed-layout rule
+     (table-layout: fixed), so it is re-rewritten explicitly. */
   figure:has(> table) > table,
+  figure:has(> table) > table.has-fixed-layout,
   .table-scroll > table {
     width: auto;
     max-width: none;
     min-width: max-content;
+    table-layout: auto;
   }
 
-  th, td {
+  figure:has(> table) th,
+  figure:has(> table) td,
+  .table-scroll th,
+  .table-scroll td {
     padding: var(--space-2) var(--space-3);
     white-space: nowrap;
+    word-break: normal;
   }
 
-  th {
+  figure:has(> table) th,
+  .table-scroll th {
     font-size: var(--font-size-sm);
   }
 
