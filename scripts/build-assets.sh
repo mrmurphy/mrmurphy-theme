@@ -22,6 +22,7 @@ JS_SOURCES=(
   "${ASSETS}/js/embed-facade.js"
   "${ASSETS}/js/newsletter.js"
   "${ASSETS}/js/microblog-actions.js"
+  "${ASSETS}/js/tables.js"
 )
 
 CSS_OUT="${ASSETS}/css/theme.bundle.css"

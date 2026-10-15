@@ -436,53 +436,134 @@ tr:hover td {
   background-color: var(--surface-inset);
 }
 
-/* Wide tables scroll horizontally instead of squeezing
-   into unreadable vertical letter columns on small screens. */
+/* ===== RESPONSIVE TABLES =====
+   tables.js labels each cell with its column header and adds
+   .table-stacked; on small screens the CSS rebuilds rows as cards
+   whose cells carry their header as a visible label. Tables without
+   a usable header keep the horizontal-scroll fallback instead. */
 figure:has(> table),
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Hint the container is scrollable when content overflows. */
 figure:has(> table) {
   scrollbar-width: thin;
 }
 
 @media (max-width: 768px) {
-  /* Let the table keep its natural width so cells stay readable;
-     the parent scrolls horizontally. The .has-fixed-layout variant
-     out-specifies the WP-core .wp-block-table .has-fixed-layout rule
-     (table-layout: fixed), so it is re-rewritten explicitly. */
-  figure:has(> table) > table,
-  figure.wp-block-table > table.has-fixed-layout,
-  .table-scroll > table {
+  /* --- Fallback: headerless tables. Scroll horizontally, never squeeze. */
+  figure:has(> table) > table:not(.table-stacked),
+  figure.wp-block-table > table.has-fixed-layout:not(.table-stacked),
+  .table-scroll > table:not(.table-stacked) {
     width: auto;
     max-width: none;
     min-width: max-content;
     table-layout: auto;
   }
 
-  figure:has(> table) th,
-  figure:has(> table) td,
-  .table-scroll th,
-  .table-scroll td {
+  figure:has(> table) > table:not(.table-stacked) th,
+  figure:has(> table) > table:not(.table-stacked) td,
+  .table-scroll > table:not(.table-stacked) th,
+  .table-scroll > table:not(.table-stacked) td {
     padding: var(--space-2) var(--space-3);
     white-space: nowrap;
     word-break: normal;
   }
 
-  figure:has(> table) th,
-  .table-scroll th {
+  figure:has(> table) > table:not(.table-stacked) th,
+  .table-scroll > table:not(.table-stacked) th {
     font-size: var(--font-size-sm);
   }
 
-  th, td {
+  table:not(.table-stacked) th,
+  table:not(.table-stacked) td {
     border-right: var(--border-subtle);
   }
 
-  th:last-child, td:last-child {
+  table:not(.table-stacked) th:last-child,
+  table:not(.table-stacked) td:last-child {
     border-right: none;
+  }
+
+  /* --- Stacked cards: one block per row, headers become cell labels. */
+  figure:has(> table) > .table-stacked {
+    display: block;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  /* Keep the header row for assistive tech, drop it visually. */
+  figure:has(> table) > .table-stacked thead,
+  figure:has(> table) > .table-stacked .table-stack-header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  figure:has(> table) > .table-stacked tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  figure:has(> table) > .table-stacked tr {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 8.5rem), 1fr));
+    gap: var(--space-2) var(--space-3);
+    align-items: start;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--surface-inset);
+    border: var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  figure:has(> table) > table.table-stacked th,
+  figure:has(> table) > table.table-stacked td {
+    display: block;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  figure:has(> table) > .table-stacked td[data-label]::before,
+  figure:has(> table) > .table-stacked th[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-fg-muted);
+  }
+
+  /* The row's first cell is the card title. */
+  figure:has(> table) > .table-stacked .table-stack-title {
+    grid-column: 1 / -1;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  figure:has(> table) > .table-stacked .table-stack-title[data-label]::before {
+    content: none;
+  }
+
+  /* Long values take the full card width and wrap. */
+  figure:has(> table) > .table-stacked .table-stack-wide {
+    grid-column: 1 / -1;
   }
 }
 
